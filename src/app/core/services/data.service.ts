@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import {
   Product, StockItem, Warehouse, KardexEntry, ABCItem,
   SaleRecord, ModelComparison, DemandPrediction, PredictionVsActual,
-  Alert, DashboardKPIs, StockProjection, PredictionExplanation, ModelType,
+  Alert, StockProjection, PredictionExplanation, ModelType,
   PurchaseOrder
 } from '../models';
 
@@ -233,22 +233,6 @@ export class DataService {
       currentStock: 0, threshold: 30, projectedDaysUntilStockout: 0,
       createdAt: '2026-04-22T06:00:00', updatedAt: '2026-04-22T06:00:00' }
   ];
-
-  // ===== DASHBOARD KPIs =====
-  dashboardKPIs: DashboardKPIs = {
-    totalInventoryValue: 24850000,
-    turnoverRate: 4.2,
-    inventoryDays: 21,
-    stockoutRate: 8.3,
-    predictionAccuracy: 0.819,
-    avgMSE: 181.2,
-    totalActiveAlerts: 9,
-    criticalAlerts: 4,
-    productsTotal: 12,
-    lowStockProducts: 6,
-    outOfStockProducts: 3,
-    availableProducts: 9
-  };
 
   // ===== STOCK PROJECTIONS =====
   getStockProjections(productId: string, warehouseId: string): StockProjection[] {

@@ -6,7 +6,6 @@ import { IonicModule } from '@ionic/angular';
 import { InventoryPage } from './inventory.page';
 import { KardexPage } from './kardex/kardex.page';
 import { AbcPage } from './abc/abc.page';
-import { WarehousesPage } from './warehouses/warehouses.page';
 
 const routes: Routes = [
   { path: '', component: InventoryPage },
@@ -16,6 +15,6 @@ const routes: Routes = [
 
 @NgModule({
   imports: [CommonModule, FormsModule, ReactiveFormsModule, IonicModule, RouterModule.forChild(routes)],
-  declarations: [InventoryPage, KardexPage, AbcPage, WarehousesPage]
+  declarations: [InventoryPage, KardexPage, AbcPage]
 })
 export class InventoryPageModule {}

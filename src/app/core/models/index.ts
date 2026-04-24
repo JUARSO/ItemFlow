@@ -185,22 +185,6 @@ export interface StockProjection {
   isBelowThreshold: boolean;
 }
 
-// ===== Dashboard =====
-export interface DashboardKPIs {
-  totalInventoryValue: number;
-  turnoverRate: number;
-  inventoryDays: number;
-  stockoutRate: number;
-  predictionAccuracy: number;
-  avgMSE: number;
-  totalActiveAlerts: number;
-  criticalAlerts: number;
-  productsTotal: number;
-  lowStockProducts: number;
-  outOfStockProducts: number;
-  availableProducts: number;
-}
-
 // ===== Transfer =====
 export interface Transfer {
   id: string;
