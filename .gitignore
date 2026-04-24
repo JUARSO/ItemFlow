@@ -22,6 +22,7 @@ log.txt
 /www
 /platforms
 /plugins
+# docs/ is intentionally tracked for GitHub Pages deployment
 
 # Compiled output
 /dist
