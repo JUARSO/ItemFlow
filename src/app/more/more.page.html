@@ -1,0 +1,83 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Menú</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <!-- User Profile Card -->
+  <ion-card class="profile-card" *ngIf="user$ | async as user">
+    <ion-card-content>
+      <div class="profile-row">
+        <div class="avatar">
+          <span>{{ user.name.charAt(0).toUpperCase() }}</span>
+        </div>
+        <div class="profile-info">
+          <div class="user-name">{{ user.name }}</div>
+          <div class="user-email">{{ user.email }}</div>
+          <div class="user-role">
+            <ion-icon [name]="user.role === 'admin' ? 'shield-checkmark-outline' : 'person-outline'"></ion-icon>
+            {{ user.role === 'admin' ? 'Administrador' : 'Operador' }}
+          </div>
+        </div>
+        <ion-icon name="chevron-forward" class="profile-chevron"></ion-icon>
+      </div>
+      <div class="company-row">
+        <ion-icon name="business-outline"></ion-icon>
+        <div class="company-details">
+          <div class="co-name">{{ company?.razonSocial }}</div>
+          <div class="co-cj">CJ: {{ company?.cedulaJuridica }} · {{ company?.sector }}</div>
+        </div>
+      </div>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Menu Items -->
+  <div class="section-header" style="padding-top:4px"><h3>Funciones</h3></div>
+  <div class="menu-list">
+    <div class="menu-item" *ngFor="let item of menuItems" (click)="navigateTo(item.route)">
+      <div class="menu-icon" [style.background]="item.color + '1A'" [style.color]="item.color">
+        <ion-icon [name]="item.icon"></ion-icon>
+      </div>
+      <div class="menu-text">
+        <span class="menu-label">{{ item.label }}</span>
+        <span class="menu-desc">{{ item.desc }}</span>
+      </div>
+      <ion-icon name="chevron-forward" class="menu-chevron"></ion-icon>
+    </div>
+  </div>
+
+  <!-- App Info -->
+  <div class="section-header" style="padding-top:4px"><h3>Información</h3></div>
+  <div class="info-list">
+    <div class="info-item">
+      <ion-icon name="layers-outline" style="color:#2563EB"></ion-icon>
+      <div class="info-text">
+        <span>ItemFlow</span>
+        <span class="info-val">Versión 1.0.0 (MVP)</span>
+      </div>
+    </div>
+    <div class="info-item">
+      <ion-icon name="time-outline" style="color:#64748B"></ion-icon>
+      <div class="info-text">
+        <span>Sesión expira en</span>
+        <span class="info-val">90 minutos de inactividad</span>
+      </div>
+    </div>
+    <div class="info-item">
+      <ion-icon name="server-outline" style="color:#059669"></ion-icon>
+      <div class="info-text">
+        <span>Última sincronización</span>
+        <span class="info-val">Hoy, 23 Abr 2026 · 10:30</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Logout -->
+  <ion-button expand="block" fill="outline" color="danger" style="margin:16px" (click)="confirmLogout()">
+    <ion-icon name="log-out-outline" slot="start"></ion-icon>
+    Cerrar sesión
+  </ion-button>
+
+  <div style="height:16px"></div>
+</ion-content>

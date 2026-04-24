@@ -1,0 +1,172 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/inventory" text=""></ion-back-button>
+    </ion-buttons>
+    <div class="toolbar-title" slot="start">Clasificación ABC — Pareto</div>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="abc-content">
+
+  <!-- ── Period selector ────────────────────────────────────────────────── -->
+  <div class="period-bar">
+    <span class="period-label">
+      <ion-icon name="calendar-outline"></ion-icon>
+      Período de análisis:
+    </span>
+    <div class="period-pills">
+      <button
+        *ngFor="let p of periods"
+        [class.active]="period === p.value"
+        (click)="setPeriod(p.value)">
+        {{ p.label }}
+      </button>
+    </div>
+    <div class="period-info">
+      <ion-icon name="information-circle-outline"></ion-icon>
+      <span>Basado en valor de consumo acumulado · Regla 80/20 de Pareto</span>
+    </div>
+  </div>
+
+  <!-- ── Summary cards ──────────────────────────────────────────────────── -->
+  <div class="abc-summary">
+
+    <div class="abc-card abc-a">
+      <div class="abc-card-badge">A</div>
+      <div class="abc-card-info">
+        <span class="abc-card-count">{{ classA.length }} productos</span>
+        <span class="abc-card-pct">{{ classAValuePct.toFixed(1) }}% del valor</span>
+        <span class="abc-card-desc">Control exhaustivo — alta prioridad</span>
+      </div>
+    </div>
+
+    <div class="abc-card abc-b">
+      <div class="abc-card-badge">B</div>
+      <div class="abc-card-info">
+        <span class="abc-card-count">{{ classB.length }} productos</span>
+        <span class="abc-card-pct">{{ classBValuePct.toFixed(1) }}% del valor</span>
+        <span class="abc-card-desc">Control moderado — revisión periódica</span>
+      </div>
+    </div>
+
+    <div class="abc-card abc-c">
+      <div class="abc-card-badge">C</div>
+      <div class="abc-card-info">
+        <span class="abc-card-count">{{ classC.length }} productos</span>
+        <span class="abc-card-pct">{{ classCValuePct.toFixed(1) }}% del valor</span>
+        <span class="abc-card-desc">Control simplificado — baja prioridad</span>
+      </div>
+    </div>
+
+    <div class="abc-card abc-total">
+      <div class="abc-total-icon">
+        <ion-icon name="bar-chart-outline"></ion-icon>
+      </div>
+      <div class="abc-card-info">
+        <span class="abc-card-count">{{ formatCurrency(totalPeriodValue) }}</span>
+        <span class="abc-card-pct">Valor total período</span>
+        <span class="abc-card-desc">{{ getPeriodLabel() }} · {{ rows.length }} SKUs</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── Class filter ───────────────────────────────────────────────────── -->
+  <div class="filter-row">
+    <div class="class-pills">
+      <button [class.active]="selectedClass === 'all'" (click)="selectedClass='all'">Todos</button>
+      <button [class.active-a]="selectedClass === 'A'" (click)="selectedClass='A'">Clase A</button>
+      <button [class.active-b]="selectedClass === 'B'" (click)="selectedClass='B'">Clase B</button>
+      <button [class.active-c]="selectedClass === 'C'" (click)="selectedClass='C'">Clase C</button>
+    </div>
+  </div>
+
+  <!-- ── Pareto table ───────────────────────────────────────────────────── -->
+  <div class="table-wrap">
+    <table class="abc-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>SKU</th>
+          <th>PRODUCTO</th>
+          <th class="col-c">CLASE</th>
+          <th class="col-r">VALOR CONSUMO</th>
+          <th class="col-r">% DEL TOTAL</th>
+          <th class="col-r">% ACUMULADO</th>
+          <th>PARETO</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let row of filtered; let i = index">
+
+          <td class="rank-cell">{{ i + 1 }}</td>
+
+          <td class="sku-cell">{{ row.sku }}</td>
+
+          <td class="name-cell">{{ row.productName }}</td>
+
+          <td class="col-c">
+            <span class="class-badge" [ngClass]="'cb-' + row.class.toLowerCase()">
+              {{ row.class }}
+            </span>
+          </td>
+
+          <td class="col-r value-cell">
+            <span class="value-main">{{ formatCurrency(row.periodValue) }}</span>
+            <span class="value-sub" *ngIf="period !== '365'">~{{ formatCurrency(row.annualConsumptionValue) }}/año</span>
+          </td>
+
+          <td class="col-r pct-cell">{{ row.periodPercent.toFixed(1) }}%</td>
+
+          <td class="col-r accum-cell">
+            <span [class.accum-high]="row.periodAccumulated <= 80"
+                  [class.accum-mid]="row.periodAccumulated > 80 && row.periodAccumulated <= 95"
+                  [class.accum-low]="row.periodAccumulated > 95">
+              {{ row.periodAccumulated.toFixed(1) }}%
+            </span>
+          </td>
+
+          <td class="pareto-cell">
+            <div class="pareto-bar-wrap">
+              <div class="pareto-bar">
+                <div class="pareto-fill"
+                  [style.width.%]="getBarWidth(row)"
+                  [ngClass]="'pf-' + row.class.toLowerCase()">
+                </div>
+              </div>
+              <span class="pareto-pct">{{ getBarWidth(row).toFixed(0) }}%</span>
+            </div>
+          </td>
+
+        </tr>
+
+        <tr *ngIf="filtered.length === 0">
+          <td colspan="8" class="empty-cell">
+            <ion-icon name="bar-chart-outline"></ion-icon>
+            <p>Sin datos para la clase seleccionada</p>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ── Pareto explanation ─────────────────────────────────────────────── -->
+  <div class="pareto-legend">
+    <div class="pl-item">
+      <span class="pl-dot dot-a"></span>
+      <span>Clase A: ≤80% acumulado — productos críticos (pocos, alto impacto)</span>
+    </div>
+    <div class="pl-item">
+      <span class="pl-dot dot-b"></span>
+      <span>Clase B: 80%–95% acumulado — importancia moderada</span>
+    </div>
+    <div class="pl-item">
+      <span class="pl-dot dot-c"></span>
+      <span>Clase C: >95% acumulado — muchos productos, bajo impacto individual</span>
+    </div>
+  </div>
+
+  <div style="height: 24px"></div>
+
+</ion-content>

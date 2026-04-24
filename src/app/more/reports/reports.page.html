@@ -1,0 +1,95 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start"><ion-back-button defaultHref="/tabs/more" text=""></ion-back-button></ion-buttons>
+    <ion-title>Reportes y Exportación</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <!-- Period selector -->
+  <div class="period-section">
+    <div class="period-label">Período del reporte:</div>
+    <ion-segment [(ngModel)]="period" style="margin-top:8px">
+      <ion-segment-button value="7d">7 días</ion-segment-button>
+      <ion-segment-button value="30d">30 días</ion-segment-button>
+      <ion-segment-button value="90d">90 días</ion-segment-button>
+      <ion-segment-button value="1y">1 año</ion-segment-button>
+    </ion-segment>
+  </div>
+
+  <!-- Info banner -->
+  <div class="info-banner" style="margin:8px 12px">
+    <ion-icon name="information-circle-outline"></ion-icon>
+    <span>Los reportes consolidan todos los datos del período seleccionado. La exportación es simulada en este entorno MVP.</span>
+  </div>
+
+  <!-- Report cards -->
+  <div class="reports-grid">
+    <ion-card *ngFor="let r of reportTypes" class="report-card">
+      <ion-card-content>
+        <div class="report-header">
+          <div class="report-icon" [style.background]="r.color + '1A'" [style.color]="r.color">
+            <ion-icon [name]="r.icon"></ion-icon>
+          </div>
+          <div class="report-info">
+            <div class="report-title">{{ r.title }}</div>
+            <div class="report-desc">{{ r.desc }}</div>
+          </div>
+        </div>
+        <div class="report-actions">
+          <ion-button fill="outline" size="small" color="danger"
+            [disabled]="generating === r.id + 'pdf'"
+            (click)="generateReport(r.id, 'pdf')">
+            <ion-icon name="document-outline" slot="start"></ion-icon>
+            PDF
+          </ion-button>
+          <ion-button fill="outline" size="small" color="success"
+            [disabled]="generating === r.id + 'excel'"
+            (click)="generateReport(r.id, 'excel')">
+            <ion-icon name="grid-outline" slot="start"></ion-icon>
+            Excel
+          </ion-button>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+  <!-- Quick stats for current period -->
+  <div class="section-header"><h3>Resumen del período ({{ period }})</h3></div>
+  <ion-card>
+    <ion-card-content>
+      <div class="quick-stats">
+        <div class="qs-item">
+          <ion-icon name="cube-outline" style="color:#2563EB"></ion-icon>
+          <div>
+            <div class="qs-val">{{ totalSkus }}</div>
+            <div class="qs-label">SKUs activos</div>
+          </div>
+        </div>
+        <div class="qs-item">
+          <ion-icon name="trending-up-outline" style="color:#059669"></ion-icon>
+          <div>
+            <div class="qs-val">{{ totalEntries }}</div>
+            <div class="qs-label">Entradas</div>
+          </div>
+        </div>
+        <div class="qs-item">
+          <ion-icon name="trending-down-outline" style="color:#D97706"></ion-icon>
+          <div>
+            <div class="qs-val">{{ totalExits }}</div>
+            <div class="qs-label">Salidas</div>
+          </div>
+        </div>
+        <div class="qs-item">
+          <ion-icon name="notifications-outline" style="color:#DC2626"></ion-icon>
+          <div>
+            <div class="qs-val">{{ totalAlerts }}</div>
+            <div class="qs-label">Alertas</div>
+          </div>
+        </div>
+      </div>
+    </ion-card-content>
+  </ion-card>
+
+  <div style="height:16px"></div>
+</ion-content>

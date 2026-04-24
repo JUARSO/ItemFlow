@@ -1,0 +1,134 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start"><ion-back-button defaultHref="/tabs/more" text=""></ion-back-button></ion-buttons>
+    <ion-title>Catálogo de Productos</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="openCreate()"><ion-icon name="add-outline" slot="icon-only"></ion-icon></ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <!-- Product Form -->
+  <ion-card *ngIf="showForm" class="product-form animate-in">
+    <ion-card-header>
+      <ion-card-title>{{ editingProduct ? 'Editar producto' : 'Nuevo producto' }}</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <div class="form-row">
+        <div class="form-group">
+          <label>SKU *</label>
+          <div class="input-wrapper"><input [(ngModel)]="formData.sku" placeholder="LAC-001" /></div>
+        </div>
+        <div class="form-group">
+          <label>Unidad</label>
+          <div class="select-wrapper">
+            <select [(ngModel)]="formData.unit">
+              <option value="Unidad">Unidad</option>
+              <option value="Kilogramo">Kilogramo</option>
+              <option value="Litro">Litro</option>
+              <option value="Caja">Caja</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Nombre del producto *</label>
+        <div class="input-wrapper"><input [(ngModel)]="formData.name" placeholder="Nombre completo" /></div>
+      </div>
+      <div class="form-group">
+        <label>Categoría</label>
+        <div class="select-wrapper">
+          <select [(ngModel)]="formData.category">
+            <option *ngFor="let c of categories" [value]="c">{{ c }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Precio compra ₡</label>
+          <div class="input-wrapper"><input type="number" [(ngModel)]="formData.buyPrice" placeholder="0" /></div>
+        </div>
+        <div class="form-group">
+          <label>Precio venta ₡ *</label>
+          <div class="input-wrapper"><input type="number" [(ngModel)]="formData.sellPrice" placeholder="0" /></div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Punto reorden</label>
+          <div class="input-wrapper"><input type="number" [(ngModel)]="formData.reorderPoint" placeholder="10" /></div>
+        </div>
+        <div class="form-group">
+          <label>Lead time (días)</label>
+          <div class="input-wrapper"><input type="number" [(ngModel)]="formData.leadTime" placeholder="5" /></div>
+        </div>
+      </div>
+      <div class="form-btns">
+        <ion-button fill="outline" (click)="showForm = false" style="--color:#64748B;--border-color:#E2E8F0">Cancelar</ion-button>
+        <ion-button (click)="saveProduct()">
+          <ion-icon name="checkmark-outline" slot="start"></ion-icon>
+          Guardar
+        </ion-button>
+      </div>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Search -->
+  <ion-searchbar placeholder="Buscar por nombre o SKU..." (ionInput)="searchText = $event.detail.value || ''; applyFilters()" animated></ion-searchbar>
+
+  <!-- Category filter -->
+  <ion-segment [(ngModel)]="selectedCategory" (ionChange)="applyFilters()" scrollable style="margin:0 12px 8px">
+    <ion-segment-button value="all">Todos</ion-segment-button>
+    <ion-segment-button *ngFor="let c of categories" [value]="c">{{ c.split(' ')[0] }}</ion-segment-button>
+  </ion-segment>
+
+  <!-- Product Cards -->
+  <div *ngIf="filtered.length === 0" class="empty-state">
+    <ion-icon name="cube-outline"></ion-icon>
+    <h3>Sin productos</h3>
+    <p>Crea el primer producto con el botón +</p>
+  </div>
+
+  <ion-card *ngFor="let p of filtered" class="product-card">
+    <ion-card-content>
+      <div class="product-top">
+        <div class="product-cat-dot" [style.background]="getCategoryColor(p.category)"></div>
+        <div class="product-main">
+          <div class="product-name">{{ p.name }}</div>
+          <div class="product-sku-cat">{{ p.sku }} · {{ p.category }}</div>
+        </div>
+        <div class="product-actions">
+          <ion-button fill="clear" size="small" (click)="openEdit(p)">
+            <ion-icon name="pencil-outline" slot="icon-only" style="font-size:18px;color:#2563EB"></ion-icon>
+          </ion-button>
+          <ion-button fill="clear" size="small" (click)="deleteProduct(p)">
+            <ion-icon name="trash-outline" slot="icon-only" style="font-size:18px;color:#DC2626"></ion-icon>
+          </ion-button>
+        </div>
+      </div>
+      <div class="product-prices">
+        <div class="price-item">
+          <span class="price-label">Precio compra</span>
+          <span class="price-val">₡{{ p.buyPrice | number }}</span>
+        </div>
+        <div class="price-item">
+          <span class="price-label">Precio venta</span>
+          <span class="price-val highlight">₡{{ p.sellPrice | number }}</span>
+        </div>
+        <div class="price-item">
+          <span class="price-label">Margen</span>
+          <span class="price-val" style="color:#059669">{{ (((p.sellPrice - p.buyPrice) / p.sellPrice) * 100).toFixed(0) }}%</span>
+        </div>
+      </div>
+      <div class="product-meta-row">
+        <span>Reorden: <strong>{{ p.reorderPoint }}</strong></span>
+        <span>Lead: <strong>{{ p.leadTime }}d</strong></span>
+        <span>Unidad: <strong>{{ p.unit }}</strong></span>
+        <ion-chip [color]="p.active ? 'success' : 'medium'" style="height:20px;font-size:10px">{{ p.active ? 'Activo' : 'Inactivo' }}</ion-chip>
+      </div>
+    </ion-card-content>
+  </ion-card>
+
+  <div style="height:16px"></div>
+</ion-content>

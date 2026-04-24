@@ -1,0 +1,65 @@
+<ion-content class="login-content">
+  <div class="login-bg">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+  </div>
+
+  <div class="login-container">
+    <!-- Logo / Brand -->
+    <div class="brand-section">
+      <div class="brand-icon">
+        <ion-icon name="layers" class="brand-logo-icon"></ion-icon>
+      </div>
+      <h1 class="brand-name">ItemFlow</h1>
+      <p class="brand-tagline">Gestión inteligente de inventario</p>
+    </div>
+
+    <!-- Card Form -->
+    <div class="login-card animate-in">
+      <h2 class="card-title">Iniciar sesión</h2>
+      <p class="card-subtitle">Accede a tu cuenta PyME</p>
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+        <!-- Email -->
+        <div class="form-group" [class.error]="email.invalid && email.touched">
+          <label>Correo electrónico</label>
+          <div class="input-wrapper">
+            <ion-icon name="mail-outline" class="input-icon"></ion-icon>
+            <input type="email" formControlName="email" placeholder="correo@empresa.com" autocomplete="email" />
+          </div>
+          <span class="error-msg" *ngIf="email.hasError('required') && email.touched">El correo es requerido</span>
+          <span class="error-msg" *ngIf="email.hasError('email') && email.touched">Ingresa un correo válido</span>
+        </div>
+
+        <!-- Password -->
+        <div class="form-group" [class.error]="password.invalid && password.touched">
+          <label>Contraseña</label>
+          <div class="input-wrapper">
+            <ion-icon name="lock-closed-outline" class="input-icon"></ion-icon>
+            <input [type]="showPassword ? 'text' : 'password'" formControlName="password" placeholder="••••••••" autocomplete="current-password" />
+            <ion-icon [name]="showPassword ? 'eye-off-outline' : 'eye-outline'" class="input-toggle" (click)="showPassword = !showPassword"></ion-icon>
+          </div>
+          <span class="error-msg" *ngIf="password.hasError('required') && password.touched">La contraseña es requerida</span>
+        </div>
+
+        <!-- Forgot password -->
+        <div class="forgot-link">
+          <a routerLink="/auth/forgot-password">¿Olvidaste tu contraseña?</a>
+        </div>
+
+        <!-- Submit -->
+        <ion-button type="submit" expand="block" class="btn-login" [disabled]="form.invalid">
+          <ion-icon name="log-in-outline" slot="start"></ion-icon>
+          Ingresar
+        </ion-button>
+      </form>
+
+
+      <!-- Register link -->
+      <div class="register-link">
+        ¿No tienes cuenta? <a routerLink="/auth/register">Registra tu PyME</a>
+      </div>
+    </div>
+  </div>
+</ion-content>

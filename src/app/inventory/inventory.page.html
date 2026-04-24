@@ -1,0 +1,199 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button class="hamburger-btn" (click)="openMenu()">
+        <ion-icon slot="icon-only" name="menu-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <div class="toolbar-title" slot="start">Gestión de Inventarios</div>
+    <ion-buttons slot="end">
+      <ion-button class="nav-btn" (click)="goToKardex()">
+        <ion-icon slot="start" name="swap-vertical-outline"></ion-icon>
+        Movimientos
+      </ion-button>
+      <ion-button class="nav-btn" (click)="goToABC()">
+        <ion-icon slot="start" name="bar-chart-outline"></ion-icon>
+        Clasif. ABC
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="inv-content">
+
+  <!-- ── Stats ──────────────────────────────────────────────────────────── -->
+  <div class="stats-grid">
+
+    <div class="stat-card">
+      <div class="stat-icon si-violet">
+        <ion-icon name="cube-outline"></ion-icon>
+      </div>
+      <div class="stat-info">
+        <span class="stat-value">{{ totalProducts }}</span>
+        <span class="stat-label">Total Productos</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon si-rose">
+        <ion-icon name="cart-outline"></ion-icon>
+      </div>
+      <div class="stat-info">
+        <span class="stat-value">{{ needsPurchaseCount }}</span>
+        <span class="stat-label">Requieren Compra</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon si-amber">
+        <ion-icon name="alert-circle-outline"></ion-icon>
+      </div>
+      <div class="stat-info">
+        <span class="stat-value">{{ unitsToOrder }}</span>
+        <span class="stat-label">Unidades a Comprar</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon si-teal">
+        <ion-icon name="car-outline"></ion-icon>
+      </div>
+      <div class="stat-info">
+        <span class="stat-value transit-val">
+          {{ inTransitCount }}
+          <span class="transit-sub" *ngIf="inTransitCount > 0">({{ inTransitUnits }} uds)</span>
+        </span>
+        <span class="stat-label">En Tránsito</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── Search + filter ────────────────────────────────────────────────── -->
+  <div class="toolbar-row">
+    <div class="search-wrapper">
+      <ion-icon name="search-outline"></ion-icon>
+      <input
+        type="text"
+        [(ngModel)]="searchTerm"
+        (ngModelChange)="applyFilter()"
+        placeholder="Buscar por código o nombre..."
+      />
+      <ion-icon *ngIf="searchTerm" name="close-circle-outline" class="clear-icon"
+        (click)="searchTerm=''; applyFilter()"></ion-icon>
+    </div>
+    <div class="filter-select-wrap">
+      <ion-icon name="filter-outline" class="filter-icon"></ion-icon>
+      <select [(ngModel)]="statusFilter" (ngModelChange)="applyFilter()">
+        <option value="all">Todos los productos</option>
+        <option value="needed">Requieren compra</option>
+        <option value="transit">En tránsito</option>
+        <option value="ok">Stock suficiente</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- ── Table ──────────────────────────────────────────────────────────── -->
+  <div class="table-wrap">
+    <table class="inv-table">
+      <thead>
+        <tr>
+          <th>CÓDIGO</th>
+          <th>NOMBRE</th>
+          <th class="col-r">CANTIDAD EN STOCK</th>
+          <th class="col-c">EN TRÁNSITO</th>
+          <th class="col-c">SE REQUIERE COMPRA</th>
+          <th class="col-c">COMPRAS REQUERIDAS</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let row of filtered">
+
+          <td>
+            <span class="sku-cell">{{ row.sku }}</span>
+            <div class="cat-wrap">
+              <span class="cat-pill" [ngClass]="getCategoryClass(row.category)">
+                {{ row.category }}
+              </span>
+            </div>
+          </td>
+
+          <td>
+            <div class="prod-icon-wrap">
+              <div class="prod-icon">
+                <ion-icon name="cube-outline"></ion-icon>
+              </div>
+              <span class="name-cell">{{ row.name }}</span>
+            </div>
+          </td>
+
+          <td class="col-r">
+            <span class="stock-val">{{ row.totalStock }}</span>
+            <div class="reorder-sub">Reorder: {{ row.reorderPoint }}</div>
+          </td>
+
+          <td class="col-c">
+            <span *ngIf="row.inTransit > 0" class="transit-badge">
+              <ion-icon name="car-outline"></ion-icon>
+              +{{ row.inTransit }}
+            </span>
+            <span *ngIf="row.inTransit === 0" class="dash-cell">-</span>
+          </td>
+
+          <td class="col-c">
+            <span class="purchase-badge pb-ok"
+              *ngIf="row.purchaseStatus === 'ok'">
+              <ion-icon name="checkmark-circle-outline"></ion-icon>
+              No
+            </span>
+            <span class="purchase-badge pb-transit"
+              *ngIf="row.purchaseStatus === 'in_transit'">
+              <ion-icon name="car-outline"></ion-icon>
+              En camino
+            </span>
+            <span class="purchase-badge pb-needed"
+              *ngIf="row.purchaseStatus === 'needed'">
+              <ion-icon name="warning-outline"></ion-icon>
+              Sí
+            </span>
+          </td>
+
+          <td class="col-c">
+            <span class="covered-text" *ngIf="row.purchaseStatus === 'in_transit'">
+              Cubierto<br><small>con tránsito</small>
+            </span>
+            <span class="needed-qty" *ngIf="row.purchaseStatus === 'needed'">
+              {{ row.quantityToOrder }} uds
+            </span>
+            <span class="dash-cell"
+              *ngIf="row.purchaseStatus === 'ok'">-</span>
+          </td>
+
+        </tr>
+
+        <tr *ngIf="filtered.length === 0">
+          <td colspan="6" class="empty-cell">
+            <ion-icon name="cube-outline"></ion-icon>
+            <p>No se encontraron productos</p>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ── Legend bar ─────────────────────────────────────────────────────── -->
+  <div class="legend-bar">
+    <div class="legend-left">
+      <span class="legend-dot dot-transit"></span>
+      <span *ngIf="inTransitCount > 0">{{ inTransitCount }} con pedido en tránsito</span>
+      <span *ngIf="inTransitCount === 0">Sin pedidos en tránsito</span>
+    </div>
+    <div class="legend-right">
+      Total a comprar: <strong>{{ unitsToOrder }} unidades</strong>
+    </div>
+  </div>
+
+
+  <div style="height: 24px"></div>
+
+</ion-content>

@@ -1,0 +1,99 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>
+      Alertas
+      <ion-badge *ngIf="counts.active > 0" color="danger" style="margin-left:6px;font-size:11px">{{ counts.active }}</ion-badge>
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-refresher slot="fixed" (ionRefresh)="ngOnInit(); $event.target.complete()">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <!-- Summary -->
+  <div class="alerts-summary">
+    <div class="as-item high">
+      <ion-icon name="warning-outline"></ion-icon>
+      <span class="as-count">{{ counts.high || 0 }}</span>
+      <span class="as-label">Alta prioridad</span>
+    </div>
+    <div class="as-item medium">
+      <ion-icon name="alert-circle-outline"></ion-icon>
+      <span class="as-count">{{ counts.medium || 0 }}</span>
+      <span class="as-label">Media prioridad</span>
+    </div>
+    <div class="as-item low">
+      <ion-icon name="information-circle-outline"></ion-icon>
+      <span class="as-count">{{ counts.low || 0 }}</span>
+      <span class="as-label">Baja prioridad</span>
+    </div>
+  </div>
+
+  <!-- Segment -->
+  <ion-segment [(ngModel)]="segment" (ionChange)="filterAlerts()" style="margin:4px 12px 8px">
+    <ion-segment-button value="active">Activas</ion-segment-button>
+    <ion-segment-button value="restock">Reabast.</ion-segment-button>
+    <ion-segment-button value="excess">Exceso</ion-segment-button>
+    <ion-segment-button value="resolved">Resueltas</ion-segment-button>
+  </ion-segment>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && alerts.length === 0" class="empty-state">
+    <ion-icon name="checkmark-circle-outline" style="color:#059669"></ion-icon>
+    <h3>¡Sin alertas pendientes!</h3>
+    <p>Todo el inventario está dentro de los parámetros normales</p>
+  </div>
+
+  <!-- Alert cards -->
+  <div *ngFor="let alert of alerts" class="alert-item-card animate-in" [class]="'priority-' + alert.priority" (click)="onAlertAction(alert)">
+    <div class="alert-header">
+      <div class="alert-title-row">
+        <div class="alert-type-badge" [style.background]="'rgba(' + (alert.type === 'stockout_risk' ? '220,38,38' : alert.type === 'excess' ? '124,58,237' : '217,119,6') + ',0.1)'"
+          [style.color]="getAlertTypeColor(alert.type)">
+          <ion-icon [name]="getAlertTypeIcon(alert.type)"></ion-icon>
+          {{ getAlertTypeLabel(alert.type) }}
+        </div>
+        <ion-chip [color]="getPriorityColor(alert.priority)" class="p-chip">
+          {{ getPriorityLabel(alert.priority) }}
+        </ion-chip>
+      </div>
+      <div class="alert-title">{{ alert.title }}</div>
+    </div>
+
+    <div class="alert-message">{{ alert.message }}</div>
+
+    <!-- Stock stats -->
+    <div class="alert-stats">
+      <div class="stat-item">
+        <span class="stat-l">Stock actual</span>
+        <span class="stat-v" [style.color]="alert.currentStock === 0 ? '#DC2626' : '#D97706'">{{ alert.currentStock }}</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-l">Umbral</span>
+        <span class="stat-v">{{ alert.threshold }}</span>
+      </div>
+      <div class="stat-item" *ngIf="alert.projectedDaysUntilStockout !== undefined">
+        <span class="stat-l">Proyección</span>
+        <span class="stat-v" [style.color]="(alert.projectedDaysUntilStockout || 0) <= 2 ? '#DC2626' : '#D97706'">
+          {{ getDaysLabel(alert.projectedDaysUntilStockout) }}
+        </span>
+      </div>
+      <div class="stat-item" *ngIf="alert.excessValue">
+        <span class="stat-l">Capital inmovilizado</span>
+        <span class="stat-v" style="color:#7C3AED">₡{{ alert.excessValue | number }}</span>
+      </div>
+    </div>
+
+    <div class="alert-footer">
+      <ion-icon name="cube-outline"></ion-icon>
+      <span>{{ alert.productName }}</span>
+      <ion-icon [name]="getStatusIcon(alert.status)" style="margin-left:auto;font-size:16px"
+        [style.color]="alert.status === 'acknowledged' ? '#D97706' : alert.status === 'resolved' ? '#059669' : '#DC2626'">
+      </ion-icon>
+    </div>
+  </div>
+
+  <div style="height:16px"></div>
+</ion-content>

@@ -1,0 +1,438 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button class="hamburger-btn" (click)="openMenu()">
+        <ion-icon slot="icon-only" name="menu-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <div class="toolbar-title" slot="start">
+      <span>Catálogo de Productos</span>
+    </div>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="catalog-content">
+
+  <!-- ── Stats ─────────────────────────────────────────────────────────── -->
+  <div class="stats-grid">
+
+    <div class="stat-card">
+      <div class="stat-icon si-violet">
+        <ion-icon name="cube-outline"></ion-icon>
+      </div>
+      <div class="stat-info">
+        <span class="stat-value">{{ totalProducts }}</span>
+        <span class="stat-label">Productos</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon si-teal">
+        <ion-icon name="grid-outline"></ion-icon>
+      </div>
+      <div class="stat-info">
+        <span class="stat-value">{{ uniqueCategories }}</span>
+        <span class="stat-label">Categorías</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon si-amber">
+        <ion-icon name="warning-outline"></ion-icon>
+      </div>
+      <div class="stat-info">
+        <span class="stat-value">{{ lowStockCount }}</span>
+        <span class="stat-label">Stock bajo</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon si-emerald">
+        <ion-icon name="cash-outline"></ion-icon>
+      </div>
+      <div class="stat-info">
+        <span class="stat-value value-sm">{{ formatCurrency(totalInventoryValue) }}</span>
+        <span class="stat-label">Valor inventario</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── Search + Add ──────────────────────────────────────────────────── -->
+  <div class="toolbar-row">
+    <div class="search-wrapper">
+      <ion-icon name="search-outline"></ion-icon>
+      <input
+        type="text"
+        [(ngModel)]="searchTerm"
+        (ngModelChange)="applyFilter()"
+        placeholder="Buscar por nombre, categoría, proveedor..."
+      />
+      <ion-icon *ngIf="searchTerm" name="close-circle-outline" class="clear-icon"
+        (click)="searchTerm=''; applyFilter()"></ion-icon>
+    </div>
+    <button class="btn-import" (click)="openBulkModal()" title="Carga masiva CSV">
+      <ion-icon name="cloud-upload-outline"></ion-icon>
+      <span>Importar CSV</span>
+    </button>
+    <button class="btn-add" (click)="openAddModal()">
+      <ion-icon name="add-outline"></ion-icon>
+      <span>Nuevo Producto</span>
+    </button>
+  </div>
+
+  <!-- ── Table ─────────────────────────────────────────────────────────── -->
+  <div class="table-wrap">
+    <table class="catalog-table">
+      <thead>
+        <tr>
+          <th>SKU</th>
+          <th>PRODUCTO</th>
+          <th>CATEGORÍA</th>
+          <th>PROVEEDOR</th>
+          <th class="col-r">STOCK</th>
+          <th class="col-r">MIN / MAX</th>
+          <th class="col-r">COSTO</th>
+          <th class="col-c">ACCIONES</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let row of paginated">
+
+          <td class="sku-cell">{{ row.sku }}</td>
+          <td class="name-cell">{{ row.name }}</td>
+
+          <td>
+            <span class="cat-pill" [ngClass]="getCategoryClass(row.category)">
+              {{ row.category }}
+            </span>
+          </td>
+
+          <td class="muted-cell">{{ row.supplier }}</td>
+
+          <td class="col-r stock-cell">
+            <span *ngIf="row.status !== 'available'" class="stock-badge"
+              [class.sb-amber]="row.status === 'low'"
+              [class.sb-rose]="row.status === 'critical' || row.status === 'out'">
+              <ion-icon name="warning-outline"></ion-icon>{{ row.totalStock }}
+            </span>
+            <span *ngIf="row.status === 'available'" class="stock-ok">
+              {{ row.totalStock }}
+            </span>
+          </td>
+
+          <td class="col-r muted-cell">{{ row.minStock }} / {{ row.maxStock }}</td>
+          <td class="col-r cost-cell">{{ formatCurrency(row.cost) }}</td>
+
+          <td class="col-c actions-cell">
+            <button class="act-btn act-edit" (click)="openEditModal(row)" title="Editar">
+              <ion-icon name="create-outline"></ion-icon>
+            </button>
+            <button class="act-btn act-del" (click)="deleteProduct(row)" title="Eliminar">
+              <ion-icon name="trash-outline"></ion-icon>
+            </button>
+          </td>
+
+        </tr>
+        <tr *ngIf="filtered.length === 0">
+          <td colspan="8" class="empty-cell">
+            <ion-icon name="cube-outline"></ion-icon>
+            <p>No se encontraron productos</p>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ── Pagination ────────────────────────────────────────────────────── -->
+  <div class="pagination" *ngIf="filtered.length > 0">
+    <span class="pag-info">Mostrando {{ showingFrom }}–{{ showingTo }} de {{ filtered.length }}</span>
+    <div class="pag-controls">
+      <button [disabled]="currentPage === 1" (click)="currentPage = currentPage - 1">
+        <ion-icon name="chevron-back-outline"></ion-icon>
+      </button>
+      <span class="pag-num">{{ currentPage }} / {{ totalPages }}</span>
+      <button [disabled]="currentPage === totalPages" (click)="currentPage = currentPage + 1">
+        <ion-icon name="chevron-forward-outline"></ion-icon>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile FAB -->
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed" class="mobile-fab">
+    <ion-fab-button color="primary" (click)="openAddModal()">
+      <ion-icon name="add-outline"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+
+</ion-content>
+
+<!-- ── Bulk Upload Modal ──────────────────────────────────────────────────── -->
+<div class="modal-backdrop" *ngIf="showBulkModal" (click)="closeBulkModal()">
+  <div class="modal-box bulk-box" (click)="$event.stopPropagation()">
+
+    <!-- Header -->
+    <div class="modal-head">
+      <div class="modal-head-left">
+        <div class="modal-head-icon">
+          <ion-icon name="cloud-upload-outline"></ion-icon>
+        </div>
+        <h2>Carga Masiva de Productos</h2>
+      </div>
+      <button class="modal-close" (click)="closeBulkModal()">
+        <ion-icon name="close-outline"></ion-icon>
+      </button>
+    </div>
+
+    <!-- ── STEP 1: Upload ── -->
+    <div class="modal-body" *ngIf="bulkStep === 1">
+
+      <!-- Template download -->
+      <div class="bulk-tip">
+        <div class="bulk-tip-icon"><ion-icon name="document-text-outline"></ion-icon></div>
+        <div class="bulk-tip-text">
+          <p><strong>Paso 1:</strong> Descarga la plantilla y llena los datos de tus productos.</p>
+        </div>
+        <button class="btn-template" (click)="downloadTemplate()">
+          <ion-icon name="download-outline"></ion-icon>
+          Descargar plantilla
+        </button>
+      </div>
+
+      <!-- Drop zone -->
+      <div
+        class="drop-zone"
+        [class.dragging]="isDragging"
+        (dragover)="onDragOver($event)"
+        (dragleave)="onDragLeave($event)"
+        (drop)="onDrop($event)"
+        (click)="fileInput.click()"
+      >
+        <ion-icon name="cloud-upload-outline" class="dz-icon"></ion-icon>
+        <p class="dz-title">Arrastra tu archivo CSV aquí</p>
+        <p class="dz-sub">o haz clic para seleccionar</p>
+        <span class="dz-hint">.csv · UTF-8</span>
+        <input #fileInput type="file" accept=".csv,.txt" style="display:none"
+          (change)="onFileSelected($event)" />
+      </div>
+
+      <!-- Column reference -->
+      <div class="col-ref">
+        <p class="col-ref-title">Columnas esperadas en el CSV:</p>
+        <div class="col-chips">
+          <span class="col-chip required">sku</span>
+          <span class="col-chip required">nombre</span>
+          <span class="col-chip">categoria</span>
+          <span class="col-chip">unidad</span>
+          <span class="col-chip">proveedor</span>
+          <span class="col-chip">stock_actual</span>
+          <span class="col-chip">stock_minimo</span>
+          <span class="col-chip">stock_maximo</span>
+          <span class="col-chip">reorder_point</span>
+          <span class="col-chip">safety_stock</span>
+          <span class="col-chip">lead_time</span>
+          <span class="col-chip">costo</span>
+        </div>
+        <p class="col-ref-note">
+          <ion-icon name="information-circle-outline"></ion-icon>
+          Los encabezados son flexibles (sin tildes, mayúsculas o minúsculas).
+        </p>
+      </div>
+
+    </div>
+
+    <!-- ── STEP 2: Preview ── -->
+    <div class="modal-body" *ngIf="bulkStep === 2">
+
+      <!-- Summary bar -->
+      <div class="bulk-summary">
+        <div class="bs-item bs-valid">
+          <ion-icon name="checkmark-circle-outline"></ion-icon>
+          <span><strong>{{ validBulkRows.length }}</strong> listos para importar</span>
+        </div>
+        <div class="bs-item bs-error" *ngIf="invalidBulkRows.length > 0">
+          <ion-icon name="warning-outline"></ion-icon>
+          <span><strong>{{ invalidBulkRows.length }}</strong> con errores (se omitirán)</span>
+        </div>
+        <div class="bs-item bs-total">
+          <ion-icon name="list-outline"></ion-icon>
+          <span>{{ bulkRows.length }} filas detectadas</span>
+        </div>
+      </div>
+
+      <!-- Empty state -->
+      <div class="bulk-empty" *ngIf="bulkRows.length === 0">
+        <ion-icon name="alert-circle-outline"></ion-icon>
+        <p>No se encontraron datos válidos en el archivo.</p>
+        <p class="bulk-empty-sub">Verifica que el archivo tenga al menos una fila con datos.</p>
+      </div>
+
+      <!-- Preview table -->
+      <div class="preview-wrap" *ngIf="bulkRows.length > 0">
+        <table class="preview-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>SKU</th>
+              <th>Nombre</th>
+              <th>Categoría</th>
+              <th>Stock</th>
+              <th>Costo</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let row of bulkRows; let i = index" [class.row-error]="!row.valid">
+              <td class="row-num">{{ i + 1 }}</td>
+              <td class="sku-cell">{{ row.sku || '—' }}</td>
+              <td class="name-cell">{{ row.nombre || '—' }}</td>
+              <td><span class="cat-pill" [ngClass]="getCategoryClass(row.categoria)">{{ row.categoria || '—' }}</span></td>
+              <td class="muted-cell">{{ row.stockActual }}</td>
+              <td class="cost-cell">{{ row.costo ? formatCurrency(row.costo) : '—' }}</td>
+              <td class="status-col">
+                <span class="row-status ok" *ngIf="row.valid">
+                  <ion-icon name="checkmark-circle-outline"></ion-icon>
+                </span>
+                <div class="row-status err" *ngIf="!row.valid" [title]="row.errors.join(', ')">
+                  <ion-icon name="warning-outline"></ion-icon>
+                  <span class="err-text">{{ row.errors[0] }}</span>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+
+    <!-- Footer -->
+    <div class="modal-foot">
+      <button class="btn-cancel"
+        *ngIf="bulkStep === 1" (click)="closeBulkModal()">Cancelar</button>
+      <button class="btn-cancel"
+        *ngIf="bulkStep === 2" (click)="bulkStep = 1">
+        <ion-icon name="arrow-back-outline"></ion-icon> Subir otro archivo
+      </button>
+      <button class="btn-save" *ngIf="bulkStep === 2"
+        [disabled]="validBulkRows.length === 0"
+        (click)="importBulk()">
+        <ion-icon name="checkmark-outline"></ion-icon>
+        Importar {{ validBulkRows.length }} producto{{ validBulkRows.length !== 1 ? 's' : '' }}
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── Product Add/Edit Modal ──────────────────────────────────────────────── -->
+<div class="modal-backdrop" *ngIf="showModal" (click)="closeModal()">
+  <div class="modal-box" (click)="$event.stopPropagation()">
+
+    <div class="modal-head">
+      <div class="modal-head-left">
+        <div class="modal-head-icon">
+          <ion-icon name="cube-outline"></ion-icon>
+        </div>
+        <h2>{{ editMode ? 'Editar Producto' : 'Agregar Producto' }}</h2>
+      </div>
+      <button class="modal-close" (click)="closeModal()">
+        <ion-icon name="close-outline"></ion-icon>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <form [formGroup]="form">
+
+        <div class="f-row two-col">
+          <div class="f-group">
+            <label>Código / SKU</label>
+            <input type="text" formControlName="sku" placeholder="Ej: LAC-001" />
+          </div>
+          <div class="f-group">
+            <label>Nombre del producto</label>
+            <input type="text" formControlName="name" placeholder="Nombre del producto" />
+          </div>
+        </div>
+
+        <div class="f-row two-col">
+          <div class="f-group">
+            <label>Categoría</label>
+            <select formControlName="category">
+              <option value="">Seleccionar categoría</option>
+              <option *ngFor="let c of categories" [value]="c">{{ c }}</option>
+            </select>
+          </div>
+          <div class="f-group">
+            <label>Unidad de medida</label>
+            <select formControlName="unit">
+              <option value="">Seleccionar unidad</option>
+              <option *ngFor="let u of units" [value]="u">{{ u }}</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="f-row">
+          <div class="f-group">
+            <label>Proveedor principal</label>
+            <select formControlName="supplier">
+              <option value="">Seleccionar proveedor</option>
+              <option *ngFor="let s of suppliers" [value]="s">{{ s }}</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="section-sep"><span>Información de Stock</span></div>
+
+        <div class="f-row two-col">
+          <div class="f-group">
+            <label>Stock actual</label>
+            <input type="number" formControlName="stockActual" min="0" />
+          </div>
+          <div class="f-group">
+            <label>Stock mínimo</label>
+            <input type="number" formControlName="minStock" min="0" />
+          </div>
+        </div>
+
+        <div class="f-row two-col">
+          <div class="f-group">
+            <label>Stock máximo</label>
+            <input type="number" formControlName="maxStock" min="0" />
+          </div>
+          <div class="f-group">
+            <label>Reorder Point</label>
+            <input type="number" formControlName="reorderPoint" min="0" />
+          </div>
+        </div>
+
+        <div class="f-row two-col">
+          <div class="f-group">
+            <label>Safety Stock</label>
+            <input type="number" formControlName="safetyStock" min="0" />
+          </div>
+          <div class="f-group">
+            <label>Lead Time (días)</label>
+            <input type="number" formControlName="leadTime" min="0" />
+          </div>
+        </div>
+
+        <div class="f-row">
+          <div class="f-group">
+            <label>Costo unitario (₡)</label>
+            <input type="number" formControlName="cost" min="0" />
+          </div>
+        </div>
+
+      </form>
+    </div>
+
+    <div class="modal-foot">
+      <button class="btn-cancel" (click)="closeModal()">Cancelar</button>
+      <button class="btn-save" (click)="saveProduct()">
+        <ion-icon name="checkmark-outline"></ion-icon>
+        {{ editMode ? 'Guardar cambios' : 'Agregar Producto' }}
+      </button>
+    </div>
+
+  </div>
+</div>

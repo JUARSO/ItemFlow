@@ -1,0 +1,207 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/inventory" text=""></ion-back-button>
+    </ion-buttons>
+    <div class="toolbar-title" slot="start">Movimientos de Inventario</div>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="kardex-content">
+
+  <!-- ── Filters row ────────────────────────────────────────────────────── -->
+  <div class="filters-bar">
+    <div class="filter-select-wrap">
+      <ion-icon name="cube-outline" class="fi"></ion-icon>
+      <select [(ngModel)]="selectedProduct" (ngModelChange)="loadKardex()">
+        <option value="all">Todos los productos</option>
+        <option *ngFor="let p of products" [value]="p.id">{{ p.name }}</option>
+      </select>
+    </div>
+    <div class="type-pills">
+      <button [class.active]="selectedType === 'all'"        (click)="selectedType='all'; loadKardex()">Todos</button>
+      <button [class.active]="selectedType === 'in'"         (click)="selectedType='in'; loadKardex()">Entradas</button>
+      <button [class.active]="selectedType === 'out'"        (click)="selectedType='out'; loadKardex()">Salidas</button>
+      <button [class.active]="selectedType === 'adjustment'" (click)="selectedType='adjustment'; loadKardex()">Ajustes</button>
+    </div>
+    <button class="btn-add-mov" (click)="openAddModal()">
+      <ion-icon name="add-outline"></ion-icon>
+      Registrar movimiento
+    </button>
+  </div>
+
+  <!-- ── Table ──────────────────────────────────────────────────────────── -->
+  <div class="table-wrap">
+    <!-- Skeleton -->
+    <div *ngIf="loading" class="skeleton-rows">
+      <div *ngFor="let i of [1,2,3,4,5,6]" class="skeleton-row">
+        <div class="sk sk-sm"></div>
+        <div class="sk sk-md"></div>
+        <div class="sk sk-lg"></div>
+        <div class="sk sk-sm"></div>
+      </div>
+    </div>
+
+    <table class="kardex-table" *ngIf="!loading">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>FECHA / HORA</th>
+          <th class="col-c">TIPO</th>
+          <th>PRODUCTO</th>
+          <th class="col-r">CANTIDAD</th>
+          <th class="col-r">SALDO</th>
+          <th>USUARIO</th>
+          <th>MOTIVO</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let entry of entries; let i = index">
+
+          <td class="idx-cell">{{ i + 1 }}</td>
+
+          <td class="date-cell">
+            <span class="date-val">{{ entry.date | date:'dd/MM/yyyy' }}</span>
+            <span class="time-val">{{ entry.date | date:'HH:mm' }}</span>
+          </td>
+
+          <td class="col-c">
+            <span class="type-badge" [ngClass]="'tb-' + entry.type">
+              <ion-icon [name]="getTypeIcon(entry.type)"></ion-icon>
+              {{ getTypeLabel(entry.type) }}
+            </span>
+          </td>
+
+          <td>
+            <span class="prod-name">{{ getProductName(entry.productId) }}</span>
+            <span class="prod-sku">{{ getProductSku(entry.productId) }}</span>
+          </td>
+
+          <td class="col-r">
+            <span class="qty-val"
+              [class.qty-pos]="entry.type === 'in'"
+              [class.qty-neg]="entry.type === 'out' || entry.type === 'adjustment'">
+              {{ entry.type === 'in' ? '+' : '-' }}{{ entry.quantity }}
+            </span>
+            <span class="cost-sub" *ngIf="entry.cost">₡{{ entry.cost | number }}</span>
+          </td>
+
+          <td class="col-r bal-cell">{{ entry.balance }}</td>
+
+          <td>
+            <div class="user-row">
+              <div class="user-avatar">{{ entry.userName.charAt(0) }}</div>
+              <span class="user-name">{{ entry.userName }}</span>
+            </div>
+          </td>
+
+          <td class="reason-cell">{{ entry.reason }}</td>
+
+        </tr>
+        <tr *ngIf="entries.length === 0">
+          <td colspan="8" class="empty-cell">
+            <ion-icon name="list-outline"></ion-icon>
+            <p>Sin movimientos registrados</p>
+            <p class="empty-sub">Ajusta los filtros o registra el primer movimiento</p>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div style="height: 24px"></div>
+
+</ion-content>
+
+<!-- ── Add Movement Modal ────────────────────────────────────────────────── -->
+<div class="modal-backdrop" *ngIf="showModal" (click)="closeModal()">
+  <div class="modal-box" (click)="$event.stopPropagation()">
+
+    <div class="modal-head">
+      <div class="modal-head-left">
+        <div class="modal-head-icon">
+          <ion-icon name="swap-vertical-outline"></ion-icon>
+        </div>
+        <h2>Registrar Movimiento</h2>
+      </div>
+      <button class="modal-close" (click)="closeModal()">
+        <ion-icon name="close-outline"></ion-icon>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <form [formGroup]="form">
+
+        <!-- Type selector -->
+        <div class="f-row">
+          <div class="f-group full">
+            <label>Tipo de movimiento</label>
+            <div class="type-selector">
+              <label class="type-opt" [class.selected]="form.get('type')?.value === 'in'">
+                <input type="radio" formControlName="type" value="in" hidden />
+                <ion-icon name="arrow-down-circle-outline"></ion-icon>
+                Entrada
+              </label>
+              <label class="type-opt" [class.selected]="form.get('type')?.value === 'out'">
+                <input type="radio" formControlName="type" value="out" hidden />
+                <ion-icon name="arrow-up-circle-outline"></ion-icon>
+                Salida
+              </label>
+              <label class="type-opt" [class.selected]="form.get('type')?.value === 'adjustment'">
+                <input type="radio" formControlName="type" value="adjustment" hidden />
+                <ion-icon name="create-outline"></ion-icon>
+                Ajuste
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="f-row">
+          <div class="f-group full">
+            <label>Producto *</label>
+            <select formControlName="productId">
+              <option value="">Seleccionar producto</option>
+              <option *ngFor="let p of products" [value]="p.id">{{ p.name }}</option>
+            </select>
+            <span class="err-msg" *ngIf="form.get('productId')?.invalid && form.get('productId')?.touched">Requerido</span>
+          </div>
+        </div>
+
+        <div class="f-row two-col">
+          <div class="f-group">
+            <label>Cantidad *</label>
+            <input type="number" formControlName="quantity" min="1" placeholder="0" />
+            <span class="err-msg" *ngIf="form.get('quantity')?.invalid && form.get('quantity')?.touched">Mínimo 1</span>
+          </div>
+          <div class="f-group" *ngIf="showCost">
+            <label>Costo unitario (₡)</label>
+            <input type="number" formControlName="cost" min="0" placeholder="0.00" />
+          </div>
+        </div>
+
+        <div class="f-row">
+          <div class="f-group full">
+            <label>Motivo / Descripción *</label>
+            <textarea formControlName="reason" rows="2" placeholder="Ej: Compra a proveedor #PO-2026-050, Venta a cliente..."></textarea>
+            <span class="err-msg" *ngIf="form.get('reason')?.invalid && form.get('reason')?.touched">Ingresa el motivo</span>
+          </div>
+        </div>
+
+        <div class="traceability-note">
+          <ion-icon name="shield-checkmark-outline"></ion-icon>
+          <span>Trazabilidad automática: se registrará con tu usuario, fecha y hora exacta del sistema.</span>
+        </div>
+
+      </form>
+    </div>
+
+    <div class="modal-foot">
+      <button class="btn-cancel" (click)="closeModal()">Cancelar</button>
+      <button class="btn-save" (click)="saveMovement()" [disabled]="saving">
+        <ion-icon name="checkmark-outline"></ion-icon>
+        {{ saving ? 'Guardando...' : 'Registrar movimiento' }}
+      </button>
+    </div>
+
+  </div>
+</div>

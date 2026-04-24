@@ -1,0 +1,133 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/auth/login" text=""></ion-back-button>
+    </ion-buttons>
+    <ion-title>Registro de PyME</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="register-content">
+  <div class="register-container">
+    <!-- Steps indicator -->
+    <div class="steps-indicator">
+      <div class="step" [class.active]="step >= 1" [class.done]="step > 1">
+        <div class="step-circle">
+          <ion-icon *ngIf="step > 1" name="checkmark"></ion-icon>
+          <span *ngIf="step <= 1">1</span>
+        </div>
+        <span class="step-label">Empresa</span>
+      </div>
+      <div class="step-line" [class.active]="step > 1"></div>
+      <div class="step" [class.active]="step >= 2">
+        <div class="step-circle"><span>2</span></div>
+        <span class="step-label">Administrador</span>
+      </div>
+    </div>
+
+    <form [formGroup]="form">
+      <!-- Step 1: Company data -->
+      <div class="form-step" *ngIf="step === 1">
+        <div class="step-header">
+          <ion-icon name="business-outline" class="step-icon"></ion-icon>
+          <h2>Datos de la empresa</h2>
+          <p>Ingresa la información de tu PyME</p>
+        </div>
+
+        <div class="form-group" [class.error]="f['razonSocial'].invalid && f['razonSocial'].touched">
+          <label>Razón Social</label>
+          <div class="input-wrapper">
+            <ion-icon name="business-outline" class="input-icon"></ion-icon>
+            <input type="text" formControlName="razonSocial" placeholder="Empresa S.A." />
+          </div>
+        </div>
+
+        <div class="form-group" [class.error]="f['cedulaJuridica'].invalid && f['cedulaJuridica'].touched">
+          <label>Cédula Jurídica</label>
+          <div class="input-wrapper">
+            <ion-icon name="document-text-outline" class="input-icon"></ion-icon>
+            <input type="text" formControlName="cedulaJuridica" placeholder="3-101-000000" />
+          </div>
+          <span class="error-msg" *ngIf="f['cedulaJuridica'].hasError('pattern') && f['cedulaJuridica'].touched">Formato: 3-101-000000</span>
+        </div>
+
+        <div class="form-group" [class.error]="f['sector'].invalid && f['sector'].touched">
+          <label>Sector de Actividad</label>
+          <div class="select-wrapper">
+            <ion-icon name="grid-outline" class="input-icon"></ion-icon>
+            <select formControlName="sector">
+              <option value="" disabled>Selecciona sector...</option>
+              <option *ngFor="let s of sectors" [value]="s">{{ s }}</option>
+            </select>
+          </div>
+        </div>
+
+        <ion-button expand="block" class="btn-next" (click)="nextStep()">
+          Siguiente
+          <ion-icon name="arrow-forward" slot="end"></ion-icon>
+        </ion-button>
+      </div>
+
+      <!-- Step 2: Admin user -->
+      <div class="form-step" *ngIf="step === 2">
+        <div class="step-header">
+          <ion-icon name="person-circle-outline" class="step-icon"></ion-icon>
+          <h2>Datos del administrador</h2>
+          <p>Crea la cuenta del administrador principal</p>
+        </div>
+
+        <div class="form-group" [class.error]="f['adminName'].invalid && f['adminName'].touched">
+          <label>Nombre completo</label>
+          <div class="input-wrapper">
+            <ion-icon name="person-outline" class="input-icon"></ion-icon>
+            <input type="text" formControlName="adminName" placeholder="Juan Pérez" />
+          </div>
+        </div>
+
+        <div class="form-group" [class.error]="f['email'].invalid && f['email'].touched">
+          <label>Correo electrónico</label>
+          <div class="input-wrapper">
+            <ion-icon name="mail-outline" class="input-icon"></ion-icon>
+            <input type="email" formControlName="email" placeholder="admin@empresa.com" />
+          </div>
+          <span class="error-msg" *ngIf="f['email'].invalid && f['email'].touched">Ingresa un correo válido</span>
+        </div>
+
+        <div class="form-group" [class.error]="f['password'].invalid && f['password'].touched">
+          <label>Contraseña</label>
+          <div class="input-wrapper">
+            <ion-icon name="lock-closed-outline" class="input-icon"></ion-icon>
+            <input [type]="showPassword ? 'text' : 'password'" formControlName="password" placeholder="Mín. 8 chars, 1 mayúscula, 1 número" />
+            <ion-icon [name]="showPassword ? 'eye-off-outline' : 'eye-outline'" class="input-toggle" (click)="showPassword = !showPassword"></ion-icon>
+          </div>
+          <span class="error-msg" *ngIf="f['password'].hasError('minlength') && f['password'].touched">Mínimo 8 caracteres</span>
+          <span class="error-msg" *ngIf="f['password'].hasError('pattern') && f['password'].touched">Requiere al menos 1 mayúscula y 1 número</span>
+        </div>
+
+        <div class="form-group" [class.error]="form.hasError('mismatch') && f['confirmPassword'].touched">
+          <label>Confirmar contraseña</label>
+          <div class="input-wrapper">
+            <ion-icon name="lock-closed-outline" class="input-icon"></ion-icon>
+            <input type="password" formControlName="confirmPassword" placeholder="Repite la contraseña" />
+          </div>
+          <span class="error-msg" *ngIf="form.hasError('mismatch') && f['confirmPassword'].touched">Las contraseñas no coinciden</span>
+        </div>
+
+        <div class="btn-row">
+          <ion-button fill="outline" class="btn-back" (click)="step = 1">
+            <ion-icon name="arrow-back" slot="start"></ion-icon>
+            Atrás
+          </ion-button>
+          <ion-button expand="block" class="btn-submit" (click)="onSubmit()">
+            <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
+            Crear cuenta
+          </ion-button>
+        </div>
+      </div>
+    </form>
+
+    <div class="login-link">
+      ¿Ya tienes cuenta? <a routerLink="/auth/login">Inicia sesión</a>
+    </div>
+  </div>
+</ion-content>

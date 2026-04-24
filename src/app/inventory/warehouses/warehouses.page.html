@@ -1,0 +1,127 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start"><ion-back-button defaultHref="/tabs/inventory" text=""></ion-back-button></ion-buttons>
+    <ion-title>Gestión de Bodegas</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="showTransferForm = !showTransferForm">
+        <ion-icon name="swap-horizontal-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <!-- Transfer Form -->
+  <ion-card *ngIf="showTransferForm" class="transfer-card animate-in">
+    <ion-card-header>
+      <ion-card-title>
+        <ion-icon name="swap-horizontal-outline" style="margin-right:8px;color:#0891b2"></ion-icon>
+        Transferencia de Stock
+      </ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <div class="form-group">
+        <label>Desde</label>
+        <div class="select-wrapper">
+          <select [(ngModel)]="transfer.fromWarehouseId">
+            <option value="">Selecciona bodega origen</option>
+            <option *ngFor="let w of warehouses" [value]="w.id">{{ w.name }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Hacia</label>
+        <div class="select-wrapper">
+          <select [(ngModel)]="transfer.toWarehouseId">
+            <option value="">Selecciona bodega destino</option>
+            <option *ngFor="let w of warehouses" [value]="w.id">{{ w.name }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Producto</label>
+        <div class="select-wrapper">
+          <select [(ngModel)]="transfer.productId">
+            <option value="">Selecciona producto</option>
+            <option *ngFor="let p of products" [value]="p.id">{{ p.name }} ({{ p.sku }})</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Cantidad</label>
+        <div class="input-wrapper">
+          <ion-icon name="layers-outline" class="input-icon"></ion-icon>
+          <input type="number" [(ngModel)]="transfer.quantity" placeholder="0" min="1" />
+        </div>
+      </div>
+      <div class="transfer-btns">
+        <ion-button fill="outline" (click)="showTransferForm = false" style="--color:#64748B;--border-color:#E2E8F0">Cancelar</ion-button>
+        <ion-button color="tertiary" (click)="doTransfer()">
+          <ion-icon name="checkmark-outline" slot="start"></ion-icon>
+          Confirmar
+        </ion-button>
+      </div>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Warehouse Cards -->
+  <ng-container *ngIf="!loading">
+    <ion-card *ngFor="let w of warehouses" class="warehouse-card" (click)="selectWarehouse(w.id)">
+      <ion-card-content>
+        <div class="wh-header">
+          <div class="wh-icon">
+            <ion-icon name="business-outline"></ion-icon>
+          </div>
+          <div class="wh-info">
+            <div class="wh-name">{{ w.name }}</div>
+            <div class="wh-location">
+              <ion-icon name="location-outline"></ion-icon>
+              {{ w.location }}
+            </div>
+          </div>
+          <ion-chip [color]="w.active ? 'success' : 'medium'" class="active-chip">
+            {{ w.active ? 'Activa' : 'Inactiva' }}
+          </ion-chip>
+        </div>
+
+        <div class="wh-stats">
+          <div class="wh-stat">
+            <span class="stat-val">{{ getWarehouseItems(w.id).length }}</span>
+            <span class="stat-lbl">SKUs</span>
+          </div>
+          <div class="wh-stat">
+            <span class="stat-val" style="color:#059669">{{ getStatusCount(w.id,'available') }}</span>
+            <span class="stat-lbl">Disponible</span>
+          </div>
+          <div class="wh-stat">
+            <span class="stat-val" style="color:#DC2626">{{ getStatusCount(w.id,'critical') + getStatusCount(w.id,'out') }}</span>
+            <span class="stat-lbl">Crítico/Agotado</span>
+          </div>
+          <div class="wh-stat">
+            <span class="stat-val" style="color:#2563EB">{{ formatCurrency(getTotalValue(w.id)) }}</span>
+            <span class="stat-lbl">Valor</span>
+          </div>
+        </div>
+
+        <!-- Expand -->
+        <div class="wh-expand" *ngIf="selectedWarehouse === w.id">
+          <div style="height:1px;background:#F1F5F9;margin:12px 0"></div>
+          <div class="stock-mini-list">
+            <div *ngFor="let item of getWarehouseItems(w.id).slice(0,6)" class="stock-mini-item">
+              <span class="status-dot" [class]="'status-' + item.status"></span>
+              <span class="mini-name">{{ item.product.name }}</span>
+              <span class="mini-qty">{{ item.quantity }} {{ item.product.unit }}</span>
+            </div>
+            <div *ngIf="getWarehouseItems(w.id).length > 6" class="more-items">
+              +{{ getWarehouseItems(w.id).length - 6 }} más productos
+            </div>
+          </div>
+        </div>
+
+        <ion-icon [name]="selectedWarehouse === w.id ? 'chevron-up' : 'chevron-down'" class="expand-icon"></ion-icon>
+      </ion-card-content>
+    </ion-card>
+  </ng-container>
+
+  <div style="height:16px"></div>
+</ion-content>

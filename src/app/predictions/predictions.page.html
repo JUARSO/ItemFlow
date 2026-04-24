@@ -1,0 +1,198 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button class="hamburger-btn" (click)="openMenu()">
+        <ion-icon slot="icon-only" name="menu-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <div class="toolbar-title" slot="start">Calendario de Compras</div>
+    <ion-buttons slot="end">
+      <button class="proj-btn" (click)="goToProjection()">
+        <ion-icon name="analytics-outline"></ion-icon>
+        Proyección
+      </button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="cal-content">
+
+  <!-- ── Stats ──────────────────────────────────────────────────────────── -->
+  <div class="stats-bar">
+
+    <div class="stat-card stat-critical">
+      <span class="stat-label">Crítico</span>
+      <span class="stat-value">{{ criticalCount }}</span>
+      <span class="stat-sub">Comprar hoy</span>
+    </div>
+
+    <div class="stat-card stat-warning">
+      <span class="stat-label">Urgente</span>
+      <span class="stat-value">{{ warningCount }}</span>
+      <span class="stat-sub">Esta semana</span>
+    </div>
+
+    <div class="stat-card stat-ok">
+      <span class="stat-label">Planificado</span>
+      <span class="stat-value">{{ okCount }}</span>
+      <span class="stat-sub">Con tiempo</span>
+    </div>
+
+    <div class="stat-card stat-cost">
+      <span class="stat-label">Inversión total</span>
+      <span class="stat-value">₡{{ totalCost | number }}</span>
+      <span class="stat-sub">Estimado</span>
+    </div>
+
+  </div>
+
+  <!-- ── Calendar ───────────────────────────────────────────────────────── -->
+  <div class="calendar-wrap">
+
+    <div class="month-nav">
+      <button class="nav-btn" (click)="prevMonth()">
+        <ion-icon name="chevron-back-outline"></ion-icon>
+      </button>
+      <span class="month-label">{{ monthLabel }}</span>
+      <button class="nav-btn" (click)="nextMonth()">
+        <ion-icon name="chevron-forward-outline"></ion-icon>
+      </button>
+    </div>
+
+    <div class="weekdays">
+      <div class="wd" *ngFor="let wd of WEEKDAYS; let i = index"
+        [class.wd-weekend]="i >= 5">{{ wd }}</div>
+    </div>
+
+    <div class="cal-grid">
+      <div class="cal-week" *ngFor="let week of weeks">
+        <div class="cal-day"
+          *ngFor="let day of week"
+          [class.other-month]="!day.isCurrentMonth"
+          [class.is-today]="day.isToday"
+          [class.is-past]="day.isPast"
+          [class.selected]="selectedDay && isSameDay(selectedDay.date, day.date)"
+          [class.urg-critical]="day.urgency === 'critical'"
+          [class.urg-warning]="day.urgency === 'warning'"
+          [class.urg-ok]="day.urgency === 'ok'"
+          (click)="selectDay(day)">
+
+          <div class="day-num">{{ day.dayNumber }}</div>
+
+          <div class="day-dots" *ngIf="day.recommendations.length > 0">
+            <span class="day-dot"
+              *ngFor="let r of day.recommendations.slice(0, 4)"
+              [ngClass]="'dot-' + r.urgency">
+            </span>
+          </div>
+
+          <div class="day-badge" *ngIf="day.recommendations.length > 1">
+            {{ day.recommendations.length }}
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="cal-legend">
+      <div class="leg-item">
+        <span class="leg-dot leg-critical"></span>
+        Crítico (≤3 días)
+      </div>
+      <div class="leg-item">
+        <span class="leg-dot leg-warning"></span>
+        Urgente (≤8 días)
+      </div>
+      <div class="leg-item">
+        <span class="leg-dot leg-ok"></span>
+        Planificado
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── Day detail panel ───────────────────────────────────────────────── -->
+  <div class="day-panel" *ngIf="selectedDay">
+
+    <div class="panel-head">
+      <div class="ph-left">
+        <span class="ph-date">{{ formatDate(selectedDay.date) }}</span>
+        <span class="ph-count">
+          {{ selectedDay.recommendations.length }}
+          producto{{ selectedDay.recommendations.length !== 1 ? 's' : '' }} a comprar
+        </span>
+      </div>
+      <button class="ph-close" (click)="selectedDay = null">
+        <ion-icon name="close-outline"></ion-icon>
+      </button>
+    </div>
+
+    <div class="rec-list">
+      <div class="rec-card" *ngFor="let rec of selectedDay.recommendations"
+        [ngClass]="'rec-' + rec.urgency">
+
+        <div class="rc-header">
+          <div>
+            <div class="rc-name">{{ rec.name }}</div>
+            <div class="rc-sku">{{ rec.sku }}</div>
+          </div>
+          <span class="urg-badge" [ngClass]="'ub-' + rec.urgency">
+            {{ getUrgencyLabel(rec.urgency) }}
+          </span>
+        </div>
+
+        <div class="rc-details">
+          <div class="rc-detail">
+            <span class="rd-label">Cantidad óptima</span>
+            <span class="rd-highlight">{{ rec.optimalQty }} uds</span>
+          </div>
+          <div class="rc-detail">
+            <span class="rd-label">Costo estimado</span>
+            <span class="rd-cost">₡{{ rec.estimatedCost | number }}</span>
+          </div>
+          <div class="rc-detail">
+            <span class="rd-label">Stock actual</span>
+            <span class="rd-value">{{ rec.currentStock }} uds</span>
+          </div>
+          <div class="rc-detail">
+            <span class="rd-label">Punto de reorden</span>
+            <span class="rd-value">{{ rec.reorderPoint }} uds</span>
+          </div>
+          <div class="rc-detail" *ngIf="rec.inTransit > 0">
+            <span class="rd-label">En tránsito</span>
+            <span class="rd-value">+{{ rec.inTransit }} uds</span>
+          </div>
+          <div class="rc-detail">
+            <span class="rd-label">Días restantes</span>
+            <span class="rd-value">{{ rec.daysUntilReorder }} días</span>
+          </div>
+        </div>
+
+        <div class="rc-supplier">
+          <ion-icon name="business-outline"></ion-icon>
+          {{ rec.supplier }}
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ── All recommendations ────────────────────────────────────────────── -->
+  <div class="all-recs-wrap">
+    <div class="all-recs-title">Todas las recomendaciones — ordenadas por urgencia</div>
+    <div class="mini-rec" *ngFor="let rec of recommendations" (click)="navigateToDay(rec)">
+      <div class="mr-urg" [ngClass]="'dot-' + rec.urgency"></div>
+      <div class="mr-info">
+        <div class="mr-name">{{ rec.name }}</div>
+        <div class="mr-date">{{ formatDate(rec.purchaseDate) }} · {{ rec.daysUntilReorder }} días restantes</div>
+      </div>
+      <div class="mr-right">
+        <div class="mr-qty">{{ rec.optimalQty }} uds</div>
+        <div class="mr-cost">₡{{ rec.estimatedCost | number }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="height: 24px"></div>
+
+</ion-content>

@@ -1,0 +1,183 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start"><ion-back-button defaultHref="/tabs/more" text=""></ion-back-button></ion-buttons>
+    <ion-title>Gestión de Dataset</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-segment [(ngModel)]="segment" style="margin:8px 12px">
+    <ion-segment-button value="overview">Resumen</ion-segment-button>
+    <ion-segment-button value="outliers">Outliers</ion-segment-button>
+    <ion-segment-button value="import">Importar</ion-segment-button>
+  </ion-segment>
+
+  <!-- ===== OVERVIEW ===== -->
+  <ng-container *ngIf="segment === 'overview'">
+    <div class="product-selector" style="padding:8px 12px 4px">
+      <ion-select interface="popover" [value]="selectedProductId" (ionChange)="onProductChange($event)" placeholder="Producto">
+        <ion-select-option *ngFor="let p of products" [value]="p.id">{{ p.name }}</ion-select-option>
+      </ion-select>
+    </div>
+
+    <div class="grid-2" style="padding:8px 12px">
+      <div class="kpi-card" style="text-align:center">
+        <div class="kpi-label">Registros</div>
+        <div class="kpi-value" style="font-size:1.3rem;color:#2563EB">{{ records.length }}</div>
+        <div class="kpi-sub">Últimos 90 días</div>
+      </div>
+      <div class="kpi-card" style="text-align:center">
+        <div class="kpi-label">Outliers</div>
+        <div class="kpi-value" style="font-size:1.3rem;color:#D97706">{{ outlierCount }}</div>
+        <div class="kpi-sub">Detectados</div>
+      </div>
+    </div>
+
+    <!-- Records Table -->
+    <div class="section-header"><h3>Historial de ventas (muestra)</h3></div>
+    <ion-card>
+      <ion-card-content style="padding:0">
+        <div class="records-table">
+          <div class="rt-header">
+            <span>Fecha</span>
+            <span>Cantidad</span>
+            <span>Total</span>
+            <span>Z-Score</span>
+          </div>
+          <div *ngFor="let r of records.slice(0, 10)" class="rt-row" [class.is-outlier]="r.isOutlier">
+            <span>{{ r.date }}</span>
+            <span class="rt-qty" [style.color]="r.isOutlier ? '#DC2626' : '#1E293B'">{{ r.quantity }}</span>
+            <span>₡{{ r.total | number }}</span>
+            <span class="z-score" [class.outlier-z]="r.isOutlier">{{ r.zScore }}</span>
+          </div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <div class="action-buttons">
+      <ion-button expand="block" fill="outline" (click)="detectOutliers()" [disabled]="detectingOutliers">
+        <ion-icon name="search-outline" slot="start"></ion-icon>
+        Detectar valores atípicos
+      </ion-button>
+      <ion-button expand="block" (click)="normalizeDataset()" [disabled]="normalizing" style="margin-top:8px">
+        <ion-icon name="options-outline" slot="start"></ion-icon>
+        Normalizar dataset
+      </ion-button>
+    </div>
+  </ng-container>
+
+  <!-- ===== OUTLIERS ===== -->
+  <ng-container *ngIf="segment === 'outliers'">
+    <div *ngIf="!outlierResult" class="empty-state">
+      <ion-icon name="analytics-outline"></ion-icon>
+      <h3>Sin análisis</h3>
+      <p>Ve a "Resumen" y ejecuta la detección de outliers primero</p>
+      <ion-button fill="outline" size="small" (click)="segment = 'overview'">Ir a Resumen</ion-button>
+    </div>
+
+    <ng-container *ngIf="outlierResult">
+      <div class="outlier-summary">
+        <div class="os-item">
+          <span class="os-label">Registros analizados</span>
+          <span class="os-val">{{ outlierResult.totalRecords }}</span>
+        </div>
+        <div class="os-item warning">
+          <span class="os-label">Outliers detectados</span>
+          <span class="os-val">{{ outlierResult.outliersFound }}</span>
+        </div>
+        <div class="os-item">
+          <span class="os-label">Método</span>
+          <span class="os-val" style="font-size:0.85rem">Z-Score (|z|>3)</span>
+        </div>
+      </div>
+
+      <div class="section-header"><h3>Registros sospechosos ({{ outlierRecords.length }})</h3></div>
+
+      <div *ngIf="outlierRecords.length === 0" class="empty-state" style="padding:24px">
+        <ion-icon name="checkmark-circle-outline" style="color:#059669"></ion-icon>
+        <h3>Sin outliers activos</h3>
+        <p>Todos los valores atípicos han sido procesados</p>
+      </div>
+
+      <ion-card *ngFor="let r of outlierRecords" class="outlier-card">
+        <ion-card-content>
+          <div class="outlier-header">
+            <div>
+              <div class="o-date">{{ r.date }}</div>
+              <div class="o-meta">DOW: {{ r.dayOfWeek }} · Mes: {{ r.month + 1 }}</div>
+            </div>
+            <div class="z-badge">Z = {{ r.zScore }}</div>
+          </div>
+          <div class="outlier-stats">
+            <div class="os-s"><span>Cantidad</span><span class="os-v danger">{{ r.quantity }}</span></div>
+            <div class="os-s"><span>Precio</span><span class="os-v">₡{{ r.price | number }}</span></div>
+            <div class="os-s"><span>Total</span><span class="os-v">₡{{ r.total | number }}</span></div>
+          </div>
+          <ion-button expand="block" fill="outline" color="danger" size="small" (click)="discardOutlier(r)">
+            <ion-icon name="trash-outline" slot="start"></ion-icon>
+            Descartar registro
+          </ion-button>
+        </ion-card-content>
+      </ion-card>
+    </ng-container>
+  </ng-container>
+
+  <!-- ===== IMPORT ===== -->
+  <ng-container *ngIf="segment === 'import'">
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>
+          <ion-icon name="cloud-upload-outline" style="margin-right:8px;color:#7C3AED"></ion-icon>
+          Importar datos históricos
+        </ion-card-title>
+        <ion-card-subtitle>Soporta CSV y Excel (.xlsx)</ion-card-subtitle>
+      </ion-card-header>
+      <ion-card-content>
+        <div class="required-cols">
+          <div class="rc-title">Columnas obligatorias:</div>
+          <div class="col-chips">
+            <ion-chip color="primary" *ngFor="let c of ['fecha','SKU','cantidad','precio']">{{ c }}</ion-chip>
+          </div>
+          <div class="col-chips" style="margin-top:4px">
+            <ion-chip color="medium" *ngFor="let c of ['categoría','proveedor','notas']">{{ c }} (opcional)</ion-chip>
+          </div>
+        </div>
+
+        <div class="upload-area" (click)="simulateImport()">
+          <ion-icon name="cloud-upload-outline"></ion-icon>
+          <p>Toca para simular importación de archivo CSV</p>
+          <span>Máx. 50,000 registros por lote</span>
+        </div>
+
+        <!-- Progress -->
+        <ng-container *ngIf="showImportSim">
+          <div class="import-progress">
+            <div class="ip-status">{{ importStatus }}</div>
+            <div class="if-progress-bar large" style="margin-top:8px">
+              <div class="if-progress-fill" [style.width.%]="importProgress"
+                [style.background]="importProgress === 100 ? '#059669' : '#2563EB'">
+              </div>
+            </div>
+            <div class="ip-pct">{{ importProgress }}%</div>
+          </div>
+        </ng-container>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Normalization info -->
+    <ion-card>
+      <ion-card-header><ion-card-title>Técnicas de normalización</ion-card-title></ion-card-header>
+      <ion-card-content>
+        <div class="norm-item" *ngFor="let n of normTechniques">
+          <ion-icon [name]="n.icon" [style.color]="n.color"></ion-icon>
+          <div>
+            <div class="norm-name">{{ n.name }}</div>
+            <div class="norm-desc">{{ n.desc }}</div>
+          </div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </ng-container>
+
+  <div style="height:16px"></div>
+</ion-content>

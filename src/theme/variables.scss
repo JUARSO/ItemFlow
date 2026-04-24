@@ -1,0 +1,101 @@
+// ItemFlow — Violet / Modern UI Theme
+:root {
+  // ── Primary: vibrant violet ──────────────────────────────────────────────
+  --ion-color-primary: #7C3AED;
+  --ion-color-primary-rgb: 124,58,237;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255,255,255;
+  --ion-color-primary-shade: #6D28D9;
+  --ion-color-primary-tint: #8B5CF6;
+
+  // ── Secondary: indigo ────────────────────────────────────────────────────
+  --ion-color-secondary: #4F46E5;
+  --ion-color-secondary-rgb: 79,70,229;
+  --ion-color-secondary-contrast: #ffffff;
+  --ion-color-secondary-contrast-rgb: 255,255,255;
+  --ion-color-secondary-shade: #4338CA;
+  --ion-color-secondary-tint: #6366F1;
+
+  // ── Tertiary: teal ───────────────────────────────────────────────────────
+  --ion-color-tertiary: #0891B2;
+  --ion-color-tertiary-rgb: 8,145,178;
+  --ion-color-tertiary-contrast: #ffffff;
+  --ion-color-tertiary-contrast-rgb: 255,255,255;
+  --ion-color-tertiary-shade: #0E7490;
+  --ion-color-tertiary-tint: #06B6D4;
+
+  // ── Success: emerald ─────────────────────────────────────────────────────
+  --ion-color-success: #059669;
+  --ion-color-success-rgb: 5,150,105;
+  --ion-color-success-contrast: #ffffff;
+  --ion-color-success-contrast-rgb: 255,255,255;
+  --ion-color-success-shade: #047857;
+  --ion-color-success-tint: #10B981;
+
+  // ── Warning: amber ───────────────────────────────────────────────────────
+  --ion-color-warning: #D97706;
+  --ion-color-warning-rgb: 217,119,6;
+  --ion-color-warning-contrast: #ffffff;
+  --ion-color-warning-contrast-rgb: 255,255,255;
+  --ion-color-warning-shade: #B45309;
+  --ion-color-warning-tint: #F59E0B;
+
+  // ── Danger: rose ─────────────────────────────────────────────────────────
+  --ion-color-danger: #E11D48;
+  --ion-color-danger-rgb: 225,29,72;
+  --ion-color-danger-contrast: #ffffff;
+  --ion-color-danger-contrast-rgb: 255,255,255;
+  --ion-color-danger-shade: #BE123C;
+  --ion-color-danger-tint: #F43F5E;
+
+  // ── Dark / Medium / Light ────────────────────────────────────────────────
+  --ion-color-dark: #1E1B4B;
+  --ion-color-dark-rgb: 30,27,75;
+  --ion-color-dark-contrast: #ffffff;
+  --ion-color-dark-contrast-rgb: 255,255,255;
+  --ion-color-dark-shade: #13113B;
+  --ion-color-dark-tint: #312E81;
+
+  --ion-color-medium: #6B7280;
+  --ion-color-medium-rgb: 107,114,128;
+  --ion-color-medium-contrast: #ffffff;
+  --ion-color-medium-contrast-rgb: 255,255,255;
+  --ion-color-medium-shade: #4B5563;
+  --ion-color-medium-tint: #9CA3AF;
+
+  --ion-color-light: #F5F3FF;
+  --ion-color-light-rgb: 245,243,255;
+  --ion-color-light-contrast: #1E1B4B;
+  --ion-color-light-contrast-rgb: 30,27,75;
+  --ion-color-light-shade: #EDE9FE;
+  --ion-color-light-tint: #FAFAFE;
+
+  // ── App globals ──────────────────────────────────────────────────────────
+  --ion-background-color: #F5F3FF;
+  --ion-background-color-rgb: 245,243,255;
+  --ion-text-color: #1E1B4B;
+  --ion-text-color-rgb: 30,27,75;
+  --ion-toolbar-background: #7C3AED;
+  --ion-toolbar-color: #ffffff;
+  --ion-tab-bar-background: #ffffff;
+  --ion-tab-bar-border-color: #EDE9FE;
+  --ion-card-background: #ffffff;
+  --ion-item-background: #ffffff;
+
+  // ── Custom design tokens ─────────────────────────────────────────────────
+  --if-violet:        #7C3AED;
+  --if-violet-light:  #EDE9FE;
+  --if-violet-dark:   #6D28D9;
+  --if-teal:          #0891B2;
+  --if-teal-light:    #CFFAFE;
+  --if-amber:         #D97706;
+  --if-amber-light:   #FEF3C7;
+  --if-emerald:       #059669;
+  --if-emerald-light: #D1FAE5;
+  --if-rose:          #E11D48;
+  --if-rose-light:    #FFE4E6;
+  --if-card-shadow:   0 1px 3px rgba(109,40,217,0.06), 0 4px 16px rgba(109,40,217,0.08);
+  --if-card-shadow-hover: 0 8px 32px rgba(109,40,217,0.16);
+  --if-border-radius: 14px;
+  --if-sidebar-bg:    linear-gradient(160deg, #6D28D9 0%, #7C3AED 60%, #8B5CF6 100%);
+}

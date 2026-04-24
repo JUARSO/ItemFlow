@@ -1,0 +1,107 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start"><ion-back-button defaultHref="/tabs/more" text=""></ion-back-button></ion-buttons>
+    <ion-title>Usuarios y Roles</ion-title>
+    <ion-buttons slot="end" *ngIf="currentUser?.role === 'admin'">
+      <ion-button (click)="openCreate()"><ion-icon name="person-add-outline" slot="icon-only"></ion-icon></ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <!-- User Form -->
+  <ion-card *ngIf="showForm" class="user-form animate-in">
+    <ion-card-header>
+      <ion-card-title>{{ editingUser ? 'Editar usuario' : 'Nuevo usuario' }}</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <div class="form-group">
+        <label>Nombre completo</label>
+        <div class="input-wrapper"><input [(ngModel)]="formData.name" placeholder="Juan Pérez" /></div>
+      </div>
+      <div class="form-group">
+        <label>Correo electrónico</label>
+        <div class="input-wrapper"><input type="email" [(ngModel)]="formData.email" placeholder="usuario@empresa.com" /></div>
+      </div>
+      <div class="form-group">
+        <label>Rol</label>
+        <div class="select-wrapper">
+          <select [(ngModel)]="formData.role">
+            <option value="admin">Administrador</option>
+            <option value="operator">Operador</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-btns">
+        <ion-button fill="outline" (click)="showForm = false" style="--color:#64748B;--border-color:#E2E8F0">Cancelar</ion-button>
+        <ion-button (click)="saveUser()"><ion-icon name="checkmark-outline" slot="start"></ion-icon>Guardar</ion-button>
+      </div>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Roles summary -->
+  <div class="roles-summary">
+    <div class="role-card admin">
+      <ion-icon name="shield-checkmark-outline"></ion-icon>
+      <div class="role-info">
+        <span class="role-title">Administrador</span>
+        <span class="role-count">{{ adminCount }} usuario(s)</span>
+      </div>
+    </div>
+    <div class="role-card operator">
+      <ion-icon name="person-outline"></ion-icon>
+      <div class="role-info">
+        <span class="role-title">Operador</span>
+        <span class="role-count">{{ operatorCount }} usuario(s)</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Users List -->
+  <div class="section-header"><h3>Usuarios registrados</h3></div>
+
+  <ion-card *ngFor="let user of users" class="user-card" [class.current-user]="isCurrentUser(user)">
+    <ion-card-content>
+      <div class="user-row">
+        <div class="user-avatar" [class]="user.role">{{ user.name.charAt(0).toUpperCase() }}</div>
+        <div class="user-info">
+          <div class="u-name">
+            {{ user.name }}
+            <ion-chip *ngIf="isCurrentUser(user)" color="tertiary" style="height:18px;font-size:9px;--padding-start:5px;--padding-end:5px">Tú</ion-chip>
+          </div>
+          <div class="u-email">{{ user.email }}</div>
+          <div class="u-meta">
+            <div class="role-badge" [class]="user.role">
+              <ion-icon [name]="user.role === 'admin' ? 'shield-checkmark-outline' : 'person-outline'"></ion-icon>
+              {{ user.role === 'admin' ? 'Administrador' : 'Operador' }}
+            </div>
+            <ion-chip [color]="user.active ? 'success' : 'medium'" style="height:22px;font-size:10px">
+              {{ user.active ? 'Activo' : 'Inactivo' }}
+            </ion-chip>
+          </div>
+        </div>
+        <div class="user-actions" *ngIf="currentUser?.role === 'admin'">
+          <ion-button fill="clear" size="small" (click)="openEdit(user)">
+            <ion-icon name="pencil-outline" slot="icon-only" style="font-size:18px;color:#2563EB"></ion-icon>
+          </ion-button>
+          <ion-button fill="clear" size="small" (click)="toggleStatus(user)" [disabled]="isCurrentUser(user)">
+            <ion-icon [name]="user.active ? 'person-remove-outline' : 'person-add-outline'" slot="icon-only"
+              style="font-size:18px" [style.color]="user.active ? '#DC2626' : '#059669'"></ion-icon>
+          </ion-button>
+        </div>
+      </div>
+
+      <div class="permissions-section">
+        <div class="perms-title">Permisos del rol:</div>
+        <div class="perms-grid">
+          <div *ngFor="let perm of getPermissions(user.role)" class="perm-item" [class.has-perm]="true">
+            <ion-icon name="checkmark-circle-outline" style="color:#059669;font-size:13px"></ion-icon>
+            {{ perm }}
+          </div>
+        </div>
+      </div>
+    </ion-card-content>
+  </ion-card>
+
+  <div style="height:16px"></div>
+</ion-content>

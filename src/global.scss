@@ -1,0 +1,204 @@
+@import "@ionic/angular/css/core.css";
+@import "@ionic/angular/css/normalize.css";
+@import "@ionic/angular/css/structure.css";
+@import "@ionic/angular/css/typography.css";
+@import "@ionic/angular/css/display.css";
+@import "@ionic/angular/css/padding.css";
+@import "@ionic/angular/css/float-elements.css";
+@import "@ionic/angular/css/text-alignment.css";
+@import "@ionic/angular/css/text-transformation.css";
+@import "@ionic/angular/css/flex-utils.css";
+
+// ── Status tokens ────────────────────────────────────────────────────────────
+:root {
+  --status-available: #059669;
+  --status-low:       #D97706;
+  --status-critical:  #E11D48;
+  --status-out:       #E11D48;
+  --alert-restock:    #D97706;
+  --alert-excess:     #6366F1;
+  --alert-stockout:   #E11D48;
+  --class-a:          #059669;
+  --class-b:          #7C3AED;
+  --class-c:          #9CA3AF;
+}
+
+// ── Typography ───────────────────────────────────────────────────────────────
+* { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+ion-title { font-weight: 700; font-size: 1.05rem; color: #ffffff; letter-spacing: -0.2px; }
+
+// ── Toolbar ──────────────────────────────────────────────────────────────────
+ion-toolbar {
+  --background: #7C3AED;
+  --color: #ffffff;
+  --border-color: transparent;
+}
+ion-toolbar ion-back-button { --color: #ffffff; }
+ion-toolbar ion-button       { --color: #ffffff; }
+
+// ── Tab Bar ──────────────────────────────────────────────────────────────────
+ion-tab-bar {
+  height: 62px;
+  --background: #ffffff;
+  border-top: 1px solid #EDE9FE;
+  box-shadow: 0 -4px 20px rgba(124,58,237,0.08);
+}
+ion-tab-button {
+  --color:          #9CA3AF;
+  --color-selected: #7C3AED;
+
+  ion-icon  { font-size: 22px; }
+  ion-label { font-size: 10px; font-weight: 700; letter-spacing: 0.3px; }
+}
+
+// ── Cards ────────────────────────────────────────────────────────────────────
+ion-card {
+  margin: 8px 12px;
+  border-radius: 14px !important;
+  box-shadow: 0 1px 3px rgba(109,40,217,0.06), 0 4px 16px rgba(109,40,217,0.08) !important;
+  border: 1px solid rgba(124,58,237,0.06) !important;
+  background: #ffffff;
+}
+ion-card-title    { font-size: 1rem; font-weight: 700; color: #1E1B4B; }
+ion-card-subtitle { font-size: 0.75rem; text-transform: none; color: #6B7280; }
+
+// ── Status dots ──────────────────────────────────────────────────────────────
+.status-dot {
+  display: inline-block;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  margin-right: 6px;
+  flex-shrink: 0;
+}
+.status-available { background: var(--status-available); }
+.status-low       { background: var(--status-low); }
+.status-critical  { background: var(--status-critical); }
+.status-out       { background: var(--status-out); }
+
+// ── KPI cards ────────────────────────────────────────────────────────────────
+.kpi-card {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: 0 1px 3px rgba(109,40,217,0.06), 0 4px 16px rgba(109,40,217,0.08);
+  border: 1px solid rgba(124,58,237,0.06);
+
+  .kpi-label { font-size: 10px; font-weight: 700; color: #9CA3AF; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
+  .kpi-value { font-size: 1.6rem; font-weight: 800; color: #1E1B4B; line-height: 1; }
+  .kpi-sub   { font-size: 11px; color: #9CA3AF; margin-top: 6px; }
+  .kpi-icon  { font-size: 26px; }
+}
+
+// ── ABC badge ────────────────────────────────────────────────────────────────
+.abc-badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px;
+  border-radius: 8px;
+  font-size: 13px; font-weight: 800;
+  flex-shrink: 0;
+
+  &.class-a { background: #D1FAE5; color: #065F46; }
+  &.class-b { background: #EDE9FE; color: #5B21B6; }
+  &.class-c { background: #F3F4F6; color: #6B7280; }
+}
+
+// ── Alert items ──────────────────────────────────────────────────────────────
+.alert-item-card {
+  border-radius: 14px;
+  margin: 6px 12px;
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(109,40,217,0.06), 0 4px 16px rgba(109,40,217,0.08);
+  border: 1px solid rgba(124,58,237,0.06);
+  border-left: 4px solid;
+  overflow: hidden;
+
+  &.priority-high   { border-left-color: #E11D48; }
+  &.priority-medium { border-left-color: #D97706; }
+  &.priority-low    { border-left-color: #7C3AED; }
+
+  .alert-header  { display: flex; justify-content: space-between; align-items: flex-start; padding: 12px 14px 4px; }
+  .alert-title   { font-weight: 700; font-size: 0.875rem; color: #1E1B4B; }
+  .alert-time    { font-size: 11px; color: #9CA3AF; }
+  .alert-message { padding: 0 14px 10px; font-size: 0.8rem; color: #6B7280; line-height: 1.5; }
+  .alert-footer  { padding: 8px 14px; background: #FAFAFE; border-top: 1px solid #EDE9FE; display: flex; align-items: center; gap: 8px; }
+}
+
+// ── Forms ────────────────────────────────────────────────────────────────────
+.form-group {
+  margin-bottom: 16px;
+
+  label {
+    display: block; font-size: 11px; font-weight: 700;
+    color: #6B7280; margin-bottom: 6px;
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+
+  ion-input, ion-select, ion-textarea {
+    --background: #FAFAFE;
+    --border-radius: 10px;
+    --padding-start: 14px; --padding-end: 14px;
+    --padding-top: 12px; --padding-bottom: 12px;
+    border: 1.5px solid #EDE9FE;
+    border-radius: 10px;
+    --color: #1E1B4B;
+
+    &:focus-within { border-color: #7C3AED; box-shadow: 0 0 0 3px rgba(124,58,237,0.12); }
+  }
+
+  &.error ion-input, &.error ion-select { border-color: #E11D48; }
+  .error-msg { font-size: 11px; color: #E11D48; margin-top: 4px; }
+}
+
+// ── Section header ───────────────────────────────────────────────────────────
+.section-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 16px 8px;
+
+  h3 { font-size: 0.9rem; font-weight: 700; color: #1E1B4B; margin: 0; }
+}
+
+// ── Empty state ───────────────────────────────────────────────────────────────
+.empty-state {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 48px 24px; text-align: center;
+
+  ion-icon { font-size: 56px; color: #DDD6FE; margin-bottom: 16px; }
+  h3 { font-size: 1rem; font-weight: 700; color: #9CA3AF; margin: 0 0 8px; }
+  p  { font-size: 0.85rem; color: #C4B5FD; margin: 0; line-height: 1.5; }
+}
+
+// ── Grid helpers ─────────────────────────────────────────────────────────────
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 0 12px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; padding: 0 12px; }
+
+// ── Metric box ───────────────────────────────────────────────────────────────
+.metric-box {
+  text-align: center; padding: 12px;
+  background: #FAFAFE; border-radius: 10px;
+  border: 1px solid #EDE9FE;
+
+  .metric-label { font-size: 10px; font-weight: 700; color: #9CA3AF; text-transform: uppercase; letter-spacing: 0.5px; }
+  .metric-value { font-size: 1.1rem; font-weight: 800; color: #1E1B4B; margin-top: 2px; }
+
+  &.best  { background: #D1FAE5; border-color: #6EE7B7; .metric-label { color: #065F46; } .metric-value { color: #047857; } }
+  &.worst { background: #FFE4E6; border-color: #FCA5A5; .metric-label { color: #9F1239; } .metric-value { color: #BE123C; } }
+}
+
+// ── Progress bar ─────────────────────────────────────────────────────────────
+.if-progress-bar {
+  height: 6px; border-radius: 3px; background: #EDE9FE; overflow: hidden;
+  .if-progress-fill { height: 100%; border-radius: 3px; transition: width 0.6s ease; background: #7C3AED; }
+}
+
+// ── Animations ───────────────────────────────────────────────────────────────
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-in { animation: fadeSlideIn 0.3s ease forwards; }
+
+// ── SVG charts ───────────────────────────────────────────────────────────────
+.prediction-line  { fill: none; stroke: #7C3AED; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+.actual-line      { fill: none; stroke: #059669; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+.prediction-area  { fill: rgba(124,58,237,0.07); }
+.chart-grid-line  { stroke: #EDE9FE; stroke-width: 1; stroke-dasharray: 4,4; }

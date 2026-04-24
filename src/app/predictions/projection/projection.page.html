@@ -1,0 +1,246 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button class="hamburger-btn" (click)="openMenu()">
+        <ion-icon slot="icon-only" name="menu-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <div class="toolbar-title" slot="start">Proyección de Stock</div>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="proj-content">
+
+  <!-- ── Selectors ──────────────────────────────────────────────────────── -->
+  <div class="selectors-row">
+
+    <div class="product-select-wrap">
+      <ion-icon name="cube-outline" class="sel-icon"></ion-icon>
+      <select [(ngModel)]="selectedProductId" (ngModelChange)="onProductChange()">
+        <option *ngFor="let p of data.products" [value]="p.id">{{ p.name }}</option>
+      </select>
+    </div>
+
+    <div class="model-pills">
+      <button [class.active]="selectedModel === 'decision_tree'"
+        (click)="setModel('decision_tree')">
+        <ion-icon name="git-branch-outline"></ion-icon>
+        Árbol
+        <span class="rec-star" *ngIf="recommendedModel === 'decision_tree'">★</span>
+      </button>
+      <button [class.active]="selectedModel === 'linear_regression'"
+        (click)="setModel('linear_regression')">
+        <ion-icon name="trending-up-outline"></ion-icon>
+        Regresión
+        <span class="rec-star" *ngIf="recommendedModel === 'linear_regression'">★</span>
+      </button>
+    </div>
+
+  </div>
+
+  <!-- ── Horizon selector ───────────────────────────────────────────────── -->
+  <div class="horizon-row">
+    <span class="horizon-label">Horizonte:</span>
+    <div class="horizon-pills">
+      <button [class.active]="horizon === 7"  (click)="setHorizon(7)">7 días</button>
+      <button [class.active]="horizon === 14" (click)="setHorizon(14)">14 días</button>
+      <button [class.active]="horizon === 30" (click)="setHorizon(30)">30 días</button>
+      <button [class.active]="horizon === 60" (click)="setHorizon(60)">60 días</button>
+    </div>
+  </div>
+
+  <!-- ── KPI cards ──────────────────────────────────────────────────────── -->
+  <div class="kpi-row">
+
+    <div class="kpi-card"
+      [ngClass]="daysUntilBreach === -1 ? 'kpi-safe' : daysUntilBreach <= 7 ? 'kpi-danger' : 'kpi-warn'">
+      <span class="kpi-label">Bajo reorden en</span>
+      <span class="kpi-value">{{ daysUntilBreach === -1 ? '—' : daysUntilBreach }}</span>
+      <span class="kpi-unit">{{ daysUntilBreach === -1 ? 'Stock seguro' : 'días' }}</span>
+    </div>
+
+    <div class="kpi-card"
+      [ngClass]="daysUntilStockout === -1 ? 'kpi-safe' : daysUntilStockout <= 14 ? 'kpi-danger' : 'kpi-warn'">
+      <span class="kpi-label">Agotamiento en</span>
+      <span class="kpi-value">{{ daysUntilStockout === -1 ? '—' : daysUntilStockout }}</span>
+      <span class="kpi-unit">{{ daysUntilStockout === -1 ? 'Sin ruptura' : 'días' }}</span>
+    </div>
+
+    <div class="kpi-card kpi-neutral">
+      <span class="kpi-label">Demanda {{ horizon }}d</span>
+      <span class="kpi-value">{{ totalProjectedDemand }}</span>
+      <span class="kpi-unit">unidades</span>
+    </div>
+
+    <div class="kpi-card"
+      [ngClass]="finalStock === 0 ? 'kpi-danger' : finalStock < (selectedProduct?.reorderPoint || 0) ? 'kpi-warn' : 'kpi-safe'">
+      <span class="kpi-label">Stock día {{ horizon }}</span>
+      <span class="kpi-value">{{ finalStock }}</span>
+      <span class="kpi-unit">unidades</span>
+    </div>
+
+  </div>
+
+  <!-- ── Chart ──────────────────────────────────────────────────────────── -->
+  <div class="chart-card">
+
+    <div class="chart-head">
+      <div class="chart-head-left">
+        <span class="chart-title">Nivel de inventario proyectado</span>
+        <span class="chart-sub">{{ selectedProduct?.name }} · {{ getModelLabel(selectedModel) }}</span>
+      </div>
+      <span class="rp-badge">RP: {{ selectedProduct?.reorderPoint }} uds</span>
+    </div>
+
+    <div class="chart-wrap">
+      <svg [attr.viewBox]="'0 0 ' + SW + ' ' + SH" width="100%" [attr.height]="SH">
+
+        <defs>
+          <linearGradient id="projGrad2" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#7C3AED" stop-opacity="0.4"/>
+            <stop offset="100%" stop-color="#7C3AED" stop-opacity="0.03"/>
+          </linearGradient>
+        </defs>
+
+        <!-- Danger zone (below reorder) -->
+        <rect [attr.x]="SX" [attr.y]="reorderLineY"
+          [attr.width]="CW" [attr.height]="SY2 - reorderLineY"
+          fill="rgba(239,68,68,0.07)"/>
+
+        <!-- Grid lines -->
+        <line *ngFor="let lbl of yLabels"
+          [attr.x1]="SX" [attr.y1]="lbl.y"
+          [attr.x2]="SX + CW" [attr.y2]="lbl.y"
+          stroke="#EDE9FE" stroke-width="1"/>
+
+        <!-- Incoming purchase order markers -->
+        <g *ngFor="let ln of incomingLines">
+          <line [attr.x1]="ln.x" [attr.y1]="SY1"
+            [attr.x2]="ln.x" [attr.y2]="SY2"
+            stroke="#059669" stroke-width="1.5" stroke-dasharray="3,3" opacity="0.65"/>
+          <text [attr.x]="ln.x + 3" [attr.y]="SY1 + 10"
+            font-size="8" fill="#059669" font-weight="700" font-family="sans-serif">{{ ln.label }}</text>
+        </g>
+
+        <!-- Stock area fill -->
+        <path [attr.d]="stockAreaPath" fill="url(#projGrad2)"/>
+
+        <!-- Reorder point line -->
+        <line [attr.x1]="SX" [attr.y1]="reorderLineY"
+          [attr.x2]="SX + CW" [attr.y2]="reorderLineY"
+          stroke="#F59E0B" stroke-width="1.5" stroke-dasharray="5,3"/>
+        <text [attr.x]="SX + CW + 3" [attr.y]="reorderLineY + 4"
+          font-size="8" fill="#F59E0B" font-weight="800" font-family="sans-serif">RP</text>
+
+        <!-- Stock line -->
+        <path [attr.d]="stockLinePath" fill="none"
+          stroke="#7C3AED" stroke-width="2.5"
+          stroke-linejoin="round" stroke-linecap="round"/>
+
+        <!-- Breach marker -->
+        <circle *ngIf="breachPoint"
+          [attr.cx]="breachPoint.cx" [attr.cy]="breachPoint.cy"
+          r="4.5" fill="#F59E0B" stroke="#ffffff" stroke-width="1.5"/>
+
+        <!-- Stockout marker -->
+        <circle *ngIf="stockoutPoint"
+          [attr.cx]="stockoutPoint.cx" [attr.cy]="stockoutPoint.cy"
+          r="4.5" fill="#E11D48" stroke="#ffffff" stroke-width="1.5"/>
+
+        <!-- Y labels -->
+        <text *ngFor="let lbl of yLabels"
+          [attr.x]="SX - 4" [attr.y]="lbl.y + 4"
+          font-size="9" fill="#9CA3AF" text-anchor="end" font-family="sans-serif">{{ lbl.value }}</text>
+
+        <!-- X labels -->
+        <text *ngFor="let lbl of xLabels"
+          [attr.x]="lbl.x" [attr.y]="SH - 2"
+          font-size="9" fill="#9CA3AF" text-anchor="middle" font-family="sans-serif">{{ lbl.label }}</text>
+
+        <!-- Axes -->
+        <line [attr.x1]="SX" [attr.y1]="SY1"
+          [attr.x2]="SX" [attr.y2]="SY2 + 1"
+          stroke="#DDD6FE" stroke-width="1.5"/>
+        <line [attr.x1]="SX" [attr.y1]="SY2"
+          [attr.x2]="SX + CW + 2" [attr.y2]="SY2"
+          stroke="#DDD6FE" stroke-width="1.5"/>
+
+      </svg>
+    </div>
+
+    <div class="chart-legend">
+      <div class="cl-item">
+        <span class="cl-swatch cl-violet"></span>
+        Stock proyectado
+      </div>
+      <div class="cl-item">
+        <span class="cl-swatch cl-amber"></span>
+        Punto de reorden
+      </div>
+      <div class="cl-item" *ngIf="breachPoint">
+        <span class="cl-dot cl-amber-dot"></span>
+        Primer día bajo RP
+      </div>
+      <div class="cl-item" *ngIf="stockoutPoint">
+        <span class="cl-dot cl-red-dot"></span>
+        Agotamiento
+      </div>
+      <div class="cl-item" *ngIf="incomingLines.length > 0">
+        <span class="cl-swatch cl-green"></span>
+        Pedido en tránsito
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── Day-by-day table ───────────────────────────────────────────────── -->
+  <div class="table-card">
+
+    <div class="table-title">Detalle día a día</div>
+
+    <div class="proj-table-wrap">
+      <table class="proj-table">
+        <thead>
+          <tr>
+            <th>DÍA</th>
+            <th>FECHA</th>
+            <th class="col-c">LLEGADAS</th>
+            <th class="col-r">DEMANDA</th>
+            <th class="col-r">STOCK</th>
+            <th class="col-c">ESTADO</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let day of projection" [ngClass]="'row-' + day.status">
+
+            <td class="idx-col">{{ day.dayIndex }}</td>
+            <td class="date-col">{{ formatDayLabel(day.date) }}</td>
+
+            <td class="col-c">
+              <span class="inc-badge" *ngIf="day.incoming > 0">
+                <ion-icon name="arrow-down-circle-outline"></ion-icon>
+                +{{ day.incoming }}
+              </span>
+              <span class="dash" *ngIf="day.incoming === 0">—</span>
+            </td>
+
+            <td class="col-r demand-col">{{ day.demand }}</td>
+
+            <td class="col-r stock-col" [ngClass]="'sc-' + day.status">{{ day.stock }}</td>
+
+            <td class="col-c">
+              <span class="status-badge" [ngClass]="getStatusClass(day.status)">
+                {{ getStatusLabel(day.status) }}
+              </span>
+            </td>
+
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <div style="height: 24px"></div>
+
+</ion-content>
