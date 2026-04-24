@@ -1,25 +1,48 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../core/services/auth.service';
-import { AlertController, ToastController } from '@ionic/angular';
+import { ThemeService, ThemeKey, Theme } from '../core/services/theme.service';
+import { AlertController, MenuController } from '@ionic/angular';
 
 @Component({
   standalone: false,
-  selector: 'app-more', templateUrl: './more.page.html', styleUrls: ['./more.page.scss'] })
+  selector: 'app-more',
+  templateUrl: './more.page.html',
+  styleUrls: ['./more.page.scss']
+})
 export class MorePage {
-  user$ = this.auth.currentUser$;
-  company: any;
+  activeTheme: ThemeKey;
+  themes: Theme[];
 
   menuItems = [
-    { icon: 'cube-outline', label: 'Catálogo de Productos', desc: 'Crear, editar y gestionar SKUs', route: '/tabs/more/products', color: '#2563EB' },
-    { icon: 'cloud-upload-outline', label: 'Gestión de Dataset', desc: 'Importar datos, detectar outliers', route: '/tabs/more/dataset', color: '#7C3AED' },
-    { icon: 'people-outline', label: 'Usuarios y Roles', desc: 'Administrar usuarios y permisos', route: '/tabs/more/users', color: '#0891b2' },
-    { icon: 'document-text-outline', label: 'Reportes y Exportación', desc: 'PDF, Excel, historial de predicciones', route: '/tabs/more/reports', color: '#059669' }
+    { icon: 'notifications-outline',  label: 'Alertas',               desc: 'Ver y gestionar alertas de inventario',  route: '/tabs/alerts',       color: '#DC2626' },
+    { icon: 'document-text-outline',  label: 'Reportes y Exportación', desc: 'PDF, Excel, historial de predicciones',  route: '/tabs/more/reports', color: '#059669' }
   ];
 
-  constructor(private auth: AuthService, private router: Router, private alertCtrl: AlertController, private toastCtrl: ToastController) {
-    this.company = this.auth.getCompany();
+  constructor(
+    private auth: AuthService,
+    private router: Router,
+    private alertCtrl: AlertController,
+    private menuCtrl: MenuController,
+    private themeService: ThemeService
+  ) {
+    this.themes = this.themeService.themes;
+    this.activeTheme = this.themeService.getSavedTheme();
   }
+
+  ionViewWillEnter() {
+    this.activeTheme = this.themeService.getSavedTheme();
+  }
+
+  get activeThemeLabel(): string {
+    return this.themes.find(t => t.key === this.activeTheme)?.label ?? '';
+  }
+
+  get activeThemeColor(): string {
+    return this.themes.find(t => t.key === this.activeTheme)?.color ?? 'var(--ion-color-primary)';
+  }
+
+  openMenu() { this.menuCtrl.open('main-menu'); }
 
   navigateTo(route: string) { this.router.navigateByUrl(route); }
 

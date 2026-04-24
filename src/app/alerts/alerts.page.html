@@ -1,5 +1,8 @@
 <ion-header>
   <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/more" text=""></ion-back-button>
+    </ion-buttons>
     <ion-title>
       Alertas
       <ion-badge *ngIf="counts.active > 0" color="danger" style="margin-left:6px;font-size:11px">{{ counts.active }}</ion-badge>

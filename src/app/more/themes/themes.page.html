@@ -1,0 +1,81 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/more" text=""></ion-back-button>
+    </ion-buttons>
+    <ion-title class="toolbar-title">Tema de color</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="themes-content">
+
+  <!-- ── Live preview band ──────────────────────────────────── -->
+  <div class="preview-band" [style.background]="'linear-gradient(135deg, ' + (activeThemeObj?.shade || '') + ', ' + (activeThemeObj?.color || '') + ' 60%, ' + (activeThemeObj?.tint || '') + ')'">
+    <div class="preview-inner">
+
+      <!-- Mini app mockup -->
+      <div class="mini-app">
+        <div class="ma-toolbar" [style.background]="activeThemeObj?.shade">
+          <span class="ma-tb-dot"></span>
+          <div class="ma-tb-title"></div>
+        </div>
+        <div class="ma-body">
+          <div class="ma-sidebar" [style.background]="activeThemeObj?.shade"></div>
+          <div class="ma-content">
+            <div class="ma-card">
+              <div class="ma-line long"  [style.background]="activeThemeObj?.color + '44'"></div>
+              <div class="ma-line med"   [style.background]="activeThemeObj?.color + '33'"></div>
+              <div class="ma-line short" [style.background]="activeThemeObj?.color + '22'"></div>
+            </div>
+            <div class="ma-btn" [style.background]="activeThemeObj?.color">
+              <span class="ma-btn-line"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Theme info -->
+      <div class="preview-info">
+        <span class="pi-label">Tema activo</span>
+        <span class="pi-name">{{ activeThemeObj?.label }}</span>
+        <div class="pi-swatches">
+          <span class="pi-sw" [style.background]="activeThemeObj?.color"    title="Primary"></span>
+          <span class="pi-sw" [style.background]="activeThemeObj?.shade"    title="Shade"></span>
+          <span class="pi-sw" [style.background]="activeThemeObj?.tint"     title="Tint"></span>
+          <span class="pi-sw" [style.background]="activeThemeObj?.muted"    title="Muted"></span>
+          <span class="pi-sw" [style.background]="activeThemeObj?.faintBg"  title="Background" class="pi-sw pi-sw-bg"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Theme selector list ────────────────────────────────── -->
+  <div class="section-header"><h3>Elige un color</h3></div>
+  <div class="themes-card">
+    <div class="theme-list">
+      <div
+        *ngFor="let t of themes"
+        class="theme-row"
+        [class.selected]="activeTheme === t.key"
+        (click)="selectTheme(t.key)"
+      >
+        <div class="theme-dot" [style.background]="'linear-gradient(135deg, ' + t.shade + ', ' + t.tint + ')'"></div>
+        <div class="theme-info">
+          <span class="theme-name">{{ t.label }}</span>
+          <div class="theme-swatches">
+            <span class="ts" [style.background]="t.color"></span>
+            <span class="ts" [style.background]="t.light"></span>
+            <span class="ts ts-bg" [style.background]="t.bg"></span>
+          </div>
+        </div>
+        <ion-icon
+          [name]="activeTheme === t.key ? 'checkmark-circle' : 'ellipse-outline'"
+          class="theme-radio"
+          [style.color]="activeTheme === t.key ? t.color : '#CBD5E1'">
+        </ion-icon>
+      </div>
+    </div>
+  </div>
+
+  <div style="height: 24px"></div>
+</ion-content>

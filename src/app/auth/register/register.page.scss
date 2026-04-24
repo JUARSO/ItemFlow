@@ -1,4 +1,4 @@
-.register-content { --background: #7C3AED; }
+.register-content { --background: var(--ion-color-primary); }
 
 .register-container {
   padding: 20px 16px 40px;
@@ -27,7 +27,7 @@
     .step-label { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.5); }
 
     &.active .step-circle { border-color: #ffffff; color: #ffffff; background: rgba(255,255,255,0.2); }
-    &.done  .step-circle  { background: #ffffff; border-color: #ffffff; color: #7C3AED; ion-icon { font-size: 16px; } }
+    &.done  .step-circle  { background: #ffffff; border-color: #ffffff; color: var(--ion-color-primary); ion-icon { font-size: 16px; } }
     &.active .step-label, &.done .step-label { color: #ffffff; }
   }
 
@@ -48,8 +48,8 @@
 
 .step-header {
   text-align: center; margin-bottom: 22px;
-  .step-icon { font-size: 42px; color: #7C3AED; }
-  h2 { font-size: 1.2rem; font-weight: 800; color: #1E1B4B; margin: 8px 0 4px; letter-spacing: -0.3px; }
+  .step-icon { font-size: 42px; color: var(--ion-color-primary); }
+  h2 { font-size: 1.2rem; font-weight: 800; color: var(--ion-text-color); margin: 8px 0 4px; letter-spacing: -0.3px; }
   p  { font-size: 0.85rem; color: #9CA3AF; margin: 0; }
 }
 
@@ -67,41 +67,41 @@
 }
 
 .input-wrapper, .select-wrapper {
-  display: flex; align-items: center; background: #F5F3FF;
-  border: 1.5px solid #EDE9FE; border-radius: 12px; padding: 0 14px;
+  display: flex; align-items: center; background: var(--ion-background-color);
+  border: 1.5px solid var(--ion-color-light); border-radius: 12px; padding: 0 14px;
   transition: border-color 0.2s, box-shadow 0.2s;
 
   &:focus-within {
-    border-color: #7C3AED;
-    box-shadow: 0 0 0 3px rgba(124,58,237,0.1);
+    border-color: var(--ion-color-primary);
+    box-shadow: 0 0 0 3px rgba(var(--ion-color-primary-rgb), 0.1);
     background: #ffffff;
   }
 
-  .input-icon   { font-size: 18px; color: #C4B5FD; margin-right: 10px; flex-shrink: 0; }
-  .input-toggle { font-size: 18px; color: #C4B5FD; cursor: pointer; margin-left: 8px;
-    &:hover { color: #7C3AED; }
+  .input-icon   { font-size: 18px; color: var(--app-primary-muted); margin-right: 10px; flex-shrink: 0; }
+  .input-toggle { font-size: 18px; color: var(--app-primary-muted); cursor: pointer; margin-left: 8px;
+    &:hover { color: var(--ion-color-primary); }
   }
 
   input, select {
     flex: 1; border: none; outline: none; background: transparent;
-    font-size: 15px; color: #1E1B4B; height: 46px; font-family: inherit;
-    &::placeholder { color: #C4B5FD; }
+    font-size: 15px; color: var(--ion-text-color); height: 46px; font-family: inherit;
+    &::placeholder { color: var(--app-primary-muted); }
   }
   select { cursor: pointer; }
 }
 
 // ── Buttons ───────────────────────────────────────────────────────────────────
 .btn-next, .btn-submit {
-  --background: linear-gradient(135deg, #7C3AED, #6D28D9);
-  --background-activated: #6D28D9;
+  --background: linear-gradient(135deg, var(--ion-color-primary), var(--ion-color-primary-shade));
+  --background-activated: var(--ion-color-primary-shade);
   --border-radius: 12px;
-  --box-shadow: 0 6px 20px rgba(124,58,237,0.4);
+  --box-shadow: 0 6px 20px rgba(var(--ion-color-primary-rgb), 0.4);
   height: 50px; font-weight: 700; margin-top: 8px;
   letter-spacing: 0.2px;
 }
 .btn-back {
   --border-radius: 12px; height: 50px; font-weight: 700;
-  --color: #6B7280; --border-color: #EDE9FE; flex: 0 0 110px;
+  --color: #6B7280; --border-color: var(--ion-color-light); flex: 0 0 110px;
 }
 
 .btn-row { display: flex; gap: 12px; margin-top: 8px; .btn-submit { flex: 1; } }

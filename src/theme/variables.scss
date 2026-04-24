@@ -94,8 +94,16 @@
   --if-emerald-light: #D1FAE5;
   --if-rose:          #E11D48;
   --if-rose-light:    #FFE4E6;
-  --if-card-shadow:   0 1px 3px rgba(109,40,217,0.06), 0 4px 16px rgba(109,40,217,0.08);
-  --if-card-shadow-hover: 0 8px 32px rgba(109,40,217,0.16);
+  --if-card-shadow:   0 1px 3px rgba(var(--ion-color-primary-rgb), 0.06), 0 4px 16px rgba(var(--ion-color-primary-rgb), 0.08);
+  --if-card-shadow-hover: 0 8px 32px rgba(var(--ion-color-primary-rgb), 0.16);
   --if-border-radius: 14px;
   --if-sidebar-bg:    linear-gradient(160deg, #6D28D9 0%, #7C3AED 60%, #8B5CF6 100%);
+
+  // ── Theme-reactive tokens (overridden by ThemeService at runtime) ─────────
+  --app-primary-muted:      #C4B5FD;
+  --app-primary-extra-dark: #5B21B6;
+  --app-faint-bg:           #FAFAFE;
+  --if-primary:             #7C3AED;
+  --if-primary-light:       #EDE9FE;
+  --if-primary-dark:        #6D28D9;
 }

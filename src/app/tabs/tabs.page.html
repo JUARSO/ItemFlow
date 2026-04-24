@@ -42,15 +42,6 @@
         <ion-label>Proyección de Stock</ion-label>
       </ion-item>
 
-      <ion-item button class="menu-item" routerLink="/tabs/alerts"
-        routerLinkActive="active-item" (click)="closeMenu()">
-        <ion-icon name="notifications-outline" slot="start"></ion-icon>
-        <ion-label>
-          Alertas
-          <span *ngIf="alertCount > 0" class="menu-badge">{{ alertCount }}</span>
-        </ion-label>
-      </ion-item>
-
     </ion-list>
 
     <div class="menu-divider"></div>
@@ -59,7 +50,10 @@
       <ion-item button class="menu-item" routerLink="/tabs/more"
         routerLinkActive="active-item" (click)="closeMenu()">
         <ion-icon name="settings-outline" slot="start"></ion-icon>
-        <ion-label>Configuración</ion-label>
+        <ion-label>
+          Configuración
+          <span *ngIf="alertCount > 0" class="menu-badge">{{ alertCount }}</span>
+        </ion-label>
       </ion-item>
     </ion-list>
 
@@ -102,15 +96,10 @@
       <ion-label>Proyección</ion-label>
     </ion-tab-button>
 
-    <ion-tab-button tab="alerts" href="/tabs/alerts">
-      <ion-icon name="notifications-outline"></ion-icon>
-      <ion-label>Alertas</ion-label>
-      <ion-badge *ngIf="alertCount > 0" color="danger">{{ alertCount }}</ion-badge>
-    </ion-tab-button>
-
     <ion-tab-button tab="more" href="/tabs/more">
       <ion-icon name="settings-outline"></ion-icon>
       <ion-label>Más</ion-label>
+      <ion-badge *ngIf="alertCount > 0" color="danger">{{ alertCount }}</ion-badge>
     </ion-tab-button>
 
   </ion-tab-bar>

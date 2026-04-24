@@ -1,57 +1,81 @@
-.profile-card {
-  .profile-row {
-    display: flex; align-items: center; gap: 14px; margin-bottom: 14px;
+// ── Page ──────────────────────────────────────────────────────────────────────
+.more-content { --background: var(--ion-background-color); }
 
-    .avatar {
-      width: 52px; height: 52px; border-radius: 14px; flex-shrink: 0;
-      background: linear-gradient(135deg, #2563EB, #7C3AED);
-      display: flex; align-items: center; justify-content: center;
-      span { font-size: 22px; font-weight: 800; color: #fff; }
-    }
-
-    .profile-info { flex: 1; }
-    .user-name { font-weight: 800; font-size: 1rem; color: #1E293B; }
-    .user-email { font-size: 12px; color: #94A3B8; margin: 2px 0; }
-    .user-role { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 700; color: #2563EB; background: rgba(37,99,235,0.08); padding: 3px 8px; border-radius: 6px; ion-icon { font-size: 13px; } }
-
-    .profile-chevron { font-size: 18px; color: #CBD5E1; }
-  }
-
-  .company-row {
-    display: flex; align-items: flex-start; gap: 10px; padding: 10px;
-    background: #F8FAFC; border-radius: 10px;
-    ion-icon { font-size: 18px; color: #64748B; margin-top: 2px; flex-shrink: 0; }
-    .company-details { .co-name { font-size: 13px; font-weight: 700; color: #1E293B; } .co-cj { font-size: 11px; color: #94A3B8; margin-top: 2px; } }
-  }
-}
-
+// ── Menu items ───────────────────────────────────────────────────────────────
 .menu-list {
   padding: 0 12px;
-  display: flex; flex-direction: column; gap: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .menu-item {
-  display: flex; align-items: center; gap: 14px;
-  background: #fff; border-radius: 12px; padding: 14px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #fff;
+  border-radius: 12px;
+  padding: 14px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-  cursor: pointer; transition: all 0.2s;
+  cursor: pointer;
+  transition: all 0.15s;
   border: 1px solid rgba(0,0,0,0.04);
+
+  &:hover { background: var(--app-faint-bg); }
   &:active { transform: scale(0.99); }
 
-  .menu-icon { width: 44px; height: 44px; border-radius: 11px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; ion-icon { font-size: 22px; } }
-  .menu-text { flex: 1; .menu-label { display: block; font-weight: 700; font-size: 0.875rem; color: #1E293B; } .menu-desc { display: block; font-size: 12px; color: #94A3B8; margin-top: 2px; } }
-  .menu-chevron { font-size: 16px; color: #CBD5E1; }
+  .menu-icon {
+    width: 44px; height: 44px;
+    border-radius: 11px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    ion-icon { font-size: 22px; }
+  }
+
+  .menu-text {
+    flex: 1;
+    min-width: 0;
+    .menu-label { display: block; font-weight: 700; font-size: 0.875rem; color: var(--ion-text-color); }
+    .menu-desc  { display: block; font-size: 12px; color: #94A3B8; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  }
+
+  .menu-chevron { font-size: 16px; color: #CBD5E1; flex-shrink: 0; }
 }
 
+// Theme dot shown in the Apariencia nav item
+.theme-dot-preview {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.18);
+}
+
+// ── Info list ────────────────────────────────────────────────────────────────
 .info-list {
   padding: 0 12px;
-  display: flex; flex-direction: column; gap: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .info-item {
-  display: flex; align-items: flex-start; gap: 12px;
-  background: #fff; border-radius: 10px; padding: 12px 14px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: #fff;
+  border-radius: 10px;
+  padding: 12px 14px;
   box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+
   ion-icon { font-size: 18px; margin-top: 1px; flex-shrink: 0; }
-  .info-text { flex: 1; display: flex; flex-direction: column; span { font-size: 13px; font-weight: 600; color: #475569; } .info-val { font-size: 12px; color: #94A3B8; margin-top: 2px; } }
+
+  .info-text {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+
+    span { font-size: 13px; font-weight: 600; color: #475569; }
+    .info-val { font-size: 12px; color: #94A3B8; margin-top: 2px; }
+  }
 }
