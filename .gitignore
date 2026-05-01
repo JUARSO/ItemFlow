@@ -22,7 +22,9 @@ log.txt
 /www
 /platforms
 /plugins
-# docs/ is intentionally tracked for GitHub Pages deployment
+
+# Build output — GitHub Actions despliega docs/ automáticamente
+/docs
 
 # Compiled output
 /dist
@@ -72,3 +74,7 @@ Thumbs.db
 
 # Variables de entorno — nunca subir al repo
 .env
+
+# Archivos generados por set-env.js — contienen las claves de Firebase
+/src/environments/environment.local.ts
+/src/environments/environment.prod.ts

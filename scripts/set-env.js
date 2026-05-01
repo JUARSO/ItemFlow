@@ -1,7 +1,7 @@
-// Genera src/environments/environment*.ts a partir de .env
-// Ejecutar antes de build/serve: node scripts/set-env.js
+// Genera src/environments/environment.local.ts y environment.prod.ts desde .env
+// Se ejecuta automáticamente antes de build/serve via npm scripts
 
-const { writeFileSync, existsSync } = require('fs');
+const { writeFileSync } = require('fs');
 const { resolve } = require('path');
 require('dotenv').config({ path: resolve(__dirname, '../.env') });
 
@@ -31,22 +31,24 @@ const firebase = {
   ...(process.env.FIREBASE_MEASUREMENT_ID && { measurementId: process.env.FIREBASE_MEASUREMENT_ID }),
 };
 
-const dev = `// AUTO-GENERADO por scripts/set-env.js — no editar a mano
+const envDir = resolve(__dirname, '../src/environments');
+
+// environment.local.ts — usado en desarrollo (reemplaza environment.ts via fileReplacements)
+writeFileSync(`${envDir}/environment.local.ts`,
+`// AUTO-GENERADO — no editar ni commitear
 export const environment = {
   production: false,
-  firebase: ${JSON.stringify(firebase, null, 2).replace(/^/gm, '')}
+  firebase: ${JSON.stringify(firebase, null, 2)},
 };
-`;
+`);
 
-const prod = `// AUTO-GENERADO por scripts/set-env.js — no editar a mano
+// environment.prod.ts — usado en builds de producción
+writeFileSync(`${envDir}/environment.prod.ts`,
+`// AUTO-GENERADO — no editar ni commitear
 export const environment = {
   production: true,
-  firebase: ${JSON.stringify(firebase, null, 2).replace(/^/gm, '')}
+  firebase: ${JSON.stringify(firebase, null, 2)},
 };
-`;
-
-const envDir = resolve(__dirname, '../src/environments');
-writeFileSync(`${envDir}/environment.ts`, dev);
-writeFileSync(`${envDir}/environment.prod.ts`, prod);
+`);
 
 console.log('✅  Environments generados desde .env');
