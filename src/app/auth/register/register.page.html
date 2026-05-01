@@ -40,6 +40,8 @@
             <ion-icon name="business-outline" class="input-icon"></ion-icon>
             <input type="text" formControlName="razonSocial" placeholder="Empresa S.A." />
           </div>
+          <span class="error-msg" *ngIf="f['razonSocial'].hasError('required') && f['razonSocial'].touched">La razón social es requerida</span>
+          <span class="error-msg" *ngIf="f['razonSocial'].hasError('minlength') && f['razonSocial'].touched">Mínimo 3 caracteres</span>
         </div>
 
         <div class="form-group" [class.error]="f['cedulaJuridica'].invalid && f['cedulaJuridica'].touched">
@@ -60,6 +62,7 @@
               <option *ngFor="let s of sectors" [value]="s">{{ s }}</option>
             </select>
           </div>
+          <span class="error-msg" *ngIf="f['sector'].hasError('required') && f['sector'].touched">Selecciona un sector</span>
         </div>
 
         <ion-button expand="block" class="btn-next" (click)="nextStep()">
@@ -82,6 +85,8 @@
             <ion-icon name="person-outline" class="input-icon"></ion-icon>
             <input type="text" formControlName="adminName" placeholder="Juan Pérez" />
           </div>
+          <span class="error-msg" *ngIf="f['adminName'].hasError('required') && f['adminName'].touched">El nombre es requerido</span>
+          <span class="error-msg" *ngIf="f['adminName'].hasError('minlength') && f['adminName'].touched">Mínimo 3 caracteres</span>
         </div>
 
         <div class="form-group" [class.error]="f['email'].invalid && f['email'].touched">

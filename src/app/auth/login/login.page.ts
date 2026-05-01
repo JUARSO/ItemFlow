@@ -22,8 +22,8 @@ export class LoginPage {
     private toastCtrl: ToastController
   ) {
     this.form = this.fb.group({
-      email: ['admin@esperanza.com', [Validators.required, Validators.email]],
-      password: ['Admin123!', [Validators.required, Validators.minLength(6)]]
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required, Validators.minLength(6)]]
     });
   }
 
